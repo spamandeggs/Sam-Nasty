@@ -17,31 +17,29 @@
 #
 # GPL-3.0-or-later
 
-SAMNASTY = {
-	
-	'FLOPPY' : 'samnasty',
-	
-	'ASSETS' : [
-		"SAM0.BLK",		# title as a PI1 Degas Elite file
-		"SAM1.BLK",		# bricks and art
-		"SAM2.BLK",		# menu
-		"MUSIC.MBK",
-		"SPRITES.MBK",
-		"NIVO.SAM",
-		"SAM1.SAM",
-		"SAM2.SAM",
-		"SAM3.SAM",
-		"SAM4.SAM",
-		"SAM5.SAM",
-		"SAM6.SAM",
-		"SAM7.SAM",
-		"SAM8.SAM",
-		"SAM9.SAM",
-		"SCORES.SAM",
-		],
-
-	'SOURCES' : [
-		"SAMNAS01.ASC",	# game
-		"SAMNLE01.ASC",	# level editor
-		]
+FLOPPIES = {
+	'samnasty' : {	
+		'ASSETS' : [
+			"SAM0.BLK",		# title as a PI1 Degas Elite file
+			"SAM1.BLK",		# bricks and art
+			"SAM2.BLK",		# menu
+			"MUSIC.MBK",
+			"SPRITES.MBK",
+			"NIVO.SAM",
+			"SAM1.SAM",
+			"SAM2.SAM",
+			"SAM3.SAM",
+			"SAM4.SAM",
+			"SAM5.SAM",
+			"SAM6.SAM",
+			"SAM7.SAM",
+			"SAM8.SAM",
+			"SAM9.SAM",
+			"SCORES.SAM",
+			],
+		'SOURCES' : [
+			"SAMNAS01.ASC",	# game
+			"SAMNLE01.ASC",	# level editor
+			]
+		},
 	}

@@ -34,21 +34,23 @@ dev_pth = root_pth.joinpath('dev','alpha')
 # print('*')
 
 builds_pth.mkdir(exist_ok=True)
-dest_pth = builds_pth.joinpath(SAMNASTY['FLOPPY'])
-dest_pth.mkdir(exist_ok=True)
 
-print('Generating floppy %s'%(SAMNASTY['FLOPPY']))
-print('in %s :'%(dest_pth))
+for floppy_name, content in FLOPPIES.items() :
+	dest_pth = builds_pth.joinpath(floppy_name)
+	dest_pth.mkdir(exist_ok=True)
 
-for file_name in SAMNASTY['ASSETS'] :
-	print(' adding %s'%file_name)
-	src = assets_pth.joinpath(file_name)
-	dst = dest_pth.joinpath(file_name)
-	copy(src,dst)
-for file_name in SAMNASTY['SOURCES'] :
-	print(' adding %s'%file_name)
-	src = dev_pth.joinpath(file_name)
-	dst = dest_pth.joinpath(file_name)
-	copy(src,dst)
+	print('Generating floppy %s'%(floppy_name))
+	print('in %s :'%(dest_pth))
 
-print('Done.')
+	for file_name in content['ASSETS'] :
+		print(' adding %s'%file_name)
+		src = assets_pth.joinpath(file_name)
+		dst = dest_pth.joinpath(file_name)
+		copy(src,dst)
+	for file_name in content['SOURCES'] :
+		print(' adding %s'%file_name)
+		src = dev_pth.joinpath(file_name)
+		dst = dest_pth.joinpath(file_name)
+		copy(src,dst)
+
+	print('Done.')
