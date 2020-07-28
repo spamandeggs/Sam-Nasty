@@ -36,6 +36,7 @@ FLOPPIES = {
 			"SAM8.SAM",
 			"SAM9.SAM",
 			"SCORES.SAM",
+			"COPYING",
 			],
 		'SOURCES' : [
 			"SAMNAS01.ASC",	# game
