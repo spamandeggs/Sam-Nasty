@@ -1,5 +1,6 @@
 Sam Nasty
 =========
+[updated 2020/07/28]
 
 a board game for Atari ST.
 GNU GPL v3.0
@@ -7,8 +8,8 @@ GNU GPL v3.0
 sources are in dev/alpha. SAMNAS01.ASC is the game, and SAMNLE01.ASC the level editor.
 assets (sprites, MUS, PI1's) will be pushed soon.
 
-releases :
-https://jmx.alwaysdata.net/samnasty
+- repo : https://github.com/spamandeggs/Sam-Nasty  
+- board : https://jmx.alwaysdata.net/samnasty
 
 Prerequisites
 -------------
@@ -62,20 +63,50 @@ Run STOS
 
 - Switch on your Atari/emulator then run STOS
 - From the STOS editor, browse to the subfolder.  
-  In the following snippet I used `D` as a virtual hardrive, with the `builds` folder as a root.
+  In the following snippet I used `D` as a virtual hardrive, with the `builds` folder as a root,  
+  and `SAMNASTY` in the subfolder/floppy name :
 
 		new
 		drive$="D"
 		dir$="\SAMNASTY"
 
-- Generate .BAS
+- To run the game :
 
 		load "SAMNAS01.ASC"
 		load "SPRITES.MBK"
 		load "MUSIC.MBK"
+		run
 
-- Or Level Editor
+- Or to run the level editor :
 
 		load "SAMNLE01.ASC"
 		load "SPRITES.MBK"
+		run
+
+Compiling
+---------
+
+(todo : more info to come.)
+
+Before to compile the .BAS into .PRG or .TOS, you need to change some values in the code.  
+These are located at the beginning of the file.  
+
+	COMPILED=1
+	COMPDELAY=1
+	
+`COMPILED` is a flag that adds a delay when run as a PRG/TOS, since its faster than from the STOS editor.  
+1 add a delay, 0 no delay. `COMPDELAY` is the delay to add when flag is 1. 
+
+	DEVEL=0
+	
+This forbid the escape key (which is like a CTRL-C in a STOS code) to work during the game.
+	
+	TRACE=0
+	
+Hacking/Distributing
+--------------------
+
+Sam Nasty is licenced under GPL v3 or later, so be my guest and fork.  
+(todo)
+
 
