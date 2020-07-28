@@ -30,9 +30,11 @@ Browse to the project root then type :
 
 This will generate a `builds` folder, then one or several subfolders : each subfolder correspond to an Atari ST floppy. 
 the `assets.py` file in the `stosbuild` folder define how it behaves.  
+
 *For now*, If you regenerate, each existing file of each `builds` subfolder **is updated**, 
 and filenames removed from `assets.py` **are kept**. Other existing files are kept too.
-... so watch out if you edit the code directly in the Atari STOS editor.
+
+> ... so watch out if you edit the code directly in the Atari STOS editor.
 
 ### by hand
 
@@ -59,7 +61,7 @@ Run STOS
 --------
 
 - Switch on your Atari/emulator then run STOS
-- From the STOS editor, browse to the subfolder.
+- From the STOS editor, browse to the subfolder.  
   In the following snippet I used `D` as a virtual hardrive, with the `builds` folder as a root.
 
 		new
