@@ -165,7 +165,7 @@ So if you rework a part of it and distribute this part, you don't need to share 
 
 - **stobuild** is the BASIC code generator. It's everything contained in the `stosbuild` tree.  
   *copy it apart if you plan to do something to build your own retro basic project.*  
-  * I believe you can use it for an Atari project with the licence you want,* ***provided you use your own assets***  
+  *I believe you can use it for an Atari project with the licence you want,* ***provided you use your own assets***  
   ***and sources files, and not the ones provided here***, *since the generator does not add any code in the templates and only assemble them.*
 - **Sam Nasty Template** files - which are in the `assets` folder *with a .tpl extension*  
   existing files with a *.asc only extension* in the `assets` folder are not concerned.  
