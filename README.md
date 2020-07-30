@@ -34,7 +34,7 @@ Roadmap / todo
 - Code cleaning, readability, organisation, improvement,
 - Make it run on Atari 520 and not only 1040,
 - Merge game and editor codes in one,
-- Docuentation, mainly about the level editor.
+- Documentation, mainly about the level editor.
 
 Prerequisites
 -------------
@@ -116,30 +116,45 @@ Run STOS
 
 > If you modify the .ASC source files, or fork the project, you need to save them with windows CRLF end of lines,  
 > else the STOS editor won't be able to read them.
-> If using git, you need to set `core.autocrlf` to false in your project configuration  :
+> If using git, you need to set `core.autocrlf` to false in your project configuration :
+>
 >	git config core.autocrlf false
+>
 > https://www.git-scm.com/book/en/v2/Customizing-Git-Git-Configuration
 
 Compiling
 ---------
 
-(todo : more info to come.)
-
-Before to compile the .BAS into .PRG or .TOS, you need to change some values in the code.  
-These are located at the beginning of the file.  
+Before to compile, you need to change/verify some values in the code.  
+These are located at the beginning of the .ASC file :  
 
 	COMPILED=1
 	COMPDELAY=1
 	
-`COMPILED` is a flag that adds a delay when run as a PRG/TOS, since its faster than from the STOS editor.  
-1 add a delay, 0 no delay. `COMPDELAY` is the delay to add when flag is 1. 
+`COMPILED` is a flag that adds a delay when run as a PRG/TOS runtime, since its faster than the ASC version  
+run from the STOS editor. 1 adds a delay, 0 no delay. `COMPDELAY` is the delay to add when flag is 1.  
 
 	DEVEL=0
 	
 This forbid the escape key (which is like a CTRL-C in a STOS code) to work during the game.
 	
 	TRACE=0
-	
+
+Else its suscptible to print debug info during the execution.  
+
+You need to build the .BAS version before to compile it. It's the ASC file with the MBK file merged together  
+in a binary file. To do this type something like :
+
+	load "SAMNAS01.ASC"
+	load "SPRITES.MBK"
+	load "MUSIC.MBK"
+	save "SAMNAS01.BAS"
+
+.BAS are only readable by the STOS Editor, it's not a text file anymore.  
+Then you can use the STOS compilator program to generate either a .PRG or .TOS runtime from the .BAS file.  
+
+(todo : more info to come.)
+ 
 Distributing, licences, forks...
 --------------------------------
 
