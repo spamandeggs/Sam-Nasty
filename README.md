@@ -2,56 +2,59 @@ Sam Nasty
 =========
 [updated 2020/07/30]
 
-a board game for Atari ST with a level editor written in STOS Basic.
+a board game for Atari ST with a level editor written in STOS Basic. GNU GPL v3.0  
 More infos on this board : https://jmx.alwaysdata.net/samnasty
-GNU GPL v3.0
 
 The content of this repo allows you to prepare Atari floppies from sources and assets,  
 with the complete game and/or the level editor, as available in the board.  
-A python module cares about generating the floppy(ies?) content and generate basic code  
-from sources templates.
+A python module cares about generating the floppy(ies?) content and generate basic code from sources templates.
 
 - board : https://jmx.alwaysdata.net/samnasty
 - sources and builder : https://github.com/spamandeggs/Sam-Nasty
 - donations : https://en.tipeee.com/sam-nasty
 
-sources are in the `sources` folder : SAMNAS01.ASC is the complete game, and SAMNLE01.ASC the complete level editor,    
-sprites, musics, art, game levels are in the assets folder.  
-The two source files will be replaced by the sources templates files in a near future,  
-*if it confirms that this is more easy to work with* :).
+Sources are in the `sources` folder : `SAMNAS01.ASC` is the complete game, and `SAMNLE01.ASC`  
+the complete level editor. These two source files will be replaced by the sources templates files in a near  
+future, *if it confirms that this is more easy to work with* :).  
+Sprites, musics, art, and game levels are in the assets folder.  
 
 I released the project under the GNU GPL v3 and later licence, because I don't have much time  
-to continue to maintain it, could be interesting for retro-coding aficionados, and would like,  
+to continue to maintain it, the project could be interesting for retro-coding aficionados, and would like,  
 who knows, to co-maintain it with some other old buddies.  
 
 The board is the place for ideas, directions, arts, forked projects etc... it also propose the game
-as an .st file, containing the TOS compiled version, against a small donation. Maybe real floppies  
-if you ask for it. But in this repo you can obtain the very same result with a little patience.
+as an .st file, containing the TOS compiled version, against a small donation. Maybe real floppies if you ask for it.
 
-Roadmap
--------
+From this repo you can build (and modify) the very same game with a little patience.
+
+Roadmap / todo
+--------------
 
 - Continue to work on the code generator and the code templates idea (see stosbuild/README)
 - Code cleaning, readability, organisation, improvement,
 - Make it run on Atari 520 and not only 1040,
 - Merge game and editor codes in one,
+- Docuentation, mainly about the level editor.
 
 Prerequisites
 -------------
 
-- Steem/Hatari emulators and/or an Atari 1040 (for now... working on it for 520's...)
+- Steem or Hatari emulators and/or an Atari 1040 (for now... working on it for 520's...)
 - If run from a real Atari, you need a gamepad (aka a *joystick* omg)
 - the STOS language for Atari ST. (todo define exact release)
 - Python 3.8 (not mandatory but highly recommended to generate the floppies)
 - the STOS compiler (not mandatory, the game can be run directly from the STOS editor)
+
+Personnaly I use Steem, I make the assumption that this will work in Hatari (I think I made it work on a rapsberry  
+distro that use Hatari, but Im not sure..)
 
 Generate the floppies contents
 ------------------------------
 
 ### using Python 3.8
 
-You don't need to learn the Python language to use the generator. Simply download it on https://www.python.org/ and read below.  
-Browse to the project root then type :
+You don't need to learn the Python language to use the generator. Simply download it on https://www.python.org/,  
+install it, browse to the project root then type :
 	
 	python stosbuild
 
