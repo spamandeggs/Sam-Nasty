@@ -1,0 +1,34 @@
+STOSbuild is a little python3 module utility that helps to build retro-projects
+written in Atari STOS Basic :
+. assets.py describes which files among your codes and assets library are necessary
+  to each project/floppy
+. once the assets.py file is ready, simply run the module by typing 
+  `python stosbuild` in the shell
+. assets and sources files are copied directly in a `builds` subfolder.
+. templates .tpl files are basic file chunks with no line numbers : they will be numeroted
+  and merged into a numbered basic file :
+  .tpl files have no line number, so any goto, gosub, on .. goto instruction
+  points to a keyword which is replaced by the right line number during the merge.
+  to define this keyword for a block of code, add a @KEYWORD_NAME above the block.
+  Once generated, any KEYWORD_NAME occurence will be replaced by a line number,
+  which is the next line right after the @KEYWORD_NAME instruction,
+  and the @KEYWORD_NAME will be replaced by <line number> rem @KEYWORD_NAME,
+  so this can help to reverse the operation later (basic > template)
+  
+Main ideas behind this template thingy, are :
+ . reuse chunks of basic code,
+ . to be able to work without caring about line numbering considerations on a modern OS,
+ . have a better idea of what a gosub or a goto will do when inspecting the code,
+   ie : a "GOTO FADE_TO_BLACK" looks better to me than a "GOTO 8256",
+ . be able to use git to follow revisions without having every line modified in an committed file
+   just because you inserted a new line and needed to change line numbers or line steps
+   to insert it.
+
+atm it does not take in charge the reverse operation, that is open a basic file with line numbers
+and turns it into reusable templates, but this should be useful, time and experimentations will tell.
+
+This should be reusable in some non-Atari, non-STOS project written in basic.
+but please note that for now, whatever os you use, the generated basic filed have windows end of lines :
+CRLF, '\r\n' eol. This was necessary for the file to be red in Atari STOS editor.
+
+Jerome
