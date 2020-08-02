@@ -187,6 +187,8 @@ https://www.gnu.org/licenses/gpl-3.0.html
 https://www.gnu.org/licenses/gpl-faq.en.html  
 https://softwarefreedom.org/resources/2012/ManagingCopyrightInformation.html  
 https://opensource.stackexchange.com/questions/9780/license-of-code-generated-by-a-code-generator  
+https://madalinm.com/difference-using-free-images-vs-gpl-images/  
+
 
 
 
