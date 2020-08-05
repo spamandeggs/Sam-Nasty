@@ -1,10 +1,29 @@
 STOSbuild is a little python3 module utility that helps to build retro-projects
 written in Atari STOS Basic :
-. assets.py describes which files among your codes and assets library are necessary
-  to each project/floppy
-. once the assets.py file is ready, simply run the module by typing 
-  `python stosbuild` in the shell
-. assets and sources files are copied directly in a `builds` subfolder.
+
+what it does :
+
+	Creates templates *.ASC.TPL files from *.ASC basic file :
+		from a *.ASC basic file located in /sources,
+		it can generate basic template files. These are basic code blocks but
+		with no line numbers and some keywords added.
+		jumps are obviously kept, but as keywords.
+
+	Creates floppy content :
+		. copy the defined assets on the defined floppies,
+		. generate one or several *.ASC basic files from a choice of template files,
+		  renumeroted and jump-linked correctly, according to templates members and ordering.
+
+. assets.py describes which files among your sources and assets library are necessary
+  to each project/floppy :
+	. created files will be located in a `builds` subfolder, whose name is the floppy name.
+	. ASSETS and SOURCES elements are simply copied in the floppy
+	. TEMPLATES elements are the name of each *.ASC file to create
+	  each of them contains a list of template that will be merged together
+
+  once the assets.py file is ready, simply run the module by typing
+  `python stosbuild` in the shell, then select option 1
+
 . templates .tpl files are basic file chunks with no line numbers : they will be numeroted
   and merged into a numbered basic file :
   .tpl files have no line number, so any goto, gosub, on .. goto instruction
@@ -14,8 +33,11 @@ written in Atari STOS Basic :
   which is the next line right after the @KEYWORD_NAME instruction,
   and the @KEYWORD_NAME will be replaced by <line number> rem @KEYWORD_NAME,
   so this can help to reverse the operation later (basic > template)
+
+
   
 Main ideas behind this template thingy, are :
+
  . reuse chunks of basic code,
  . to be able to work without caring about line numbering considerations on a modern OS,
  . have a better idea of what a gosub or a goto will do when inspecting the code,
@@ -23,9 +45,6 @@ Main ideas behind this template thingy, are :
  . be able to use git to follow revisions without having every line modified in an committed file
    just because you inserted a new line and needed to change line numbers or line steps
    to insert it.
-
-atm it does not take in charge the reverse operation, that is open a basic file with line numbers
-and turns it into reusable templates, but this should be useful, time and experimentations will tell.
 
 This should be reusable in some non-Atari, non-STOS project written in basic.
 but please note that for now, whatever os you use, the generated basic filed have windows end of lines :
