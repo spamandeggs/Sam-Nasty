@@ -1,9 +1,9 @@
 Sam Nasty
 =========
-[updated 2020/07/30]
+[updated 2020/08/07]
 
 a board game for Atari ST with a level editor written in STOS Basic. GNU GPL v3.0  
-More infos on this board : https://jmx.alwaysdata.net/samnasty
+Demo download and infos on this board : https://jmx.alwaysdata.net/samnasty
 
 The content of this repo allows you to prepare Atari floppies from sources and assets,  
 with the complete game and/or the level editor, as available in the board.  
