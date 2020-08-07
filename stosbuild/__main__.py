@@ -371,15 +371,26 @@ def generate() :
 							if l :
 								if l[0] == '#' : continue
 								elif l[0] == '@' :
-									pointers[l[1:]] = str(lnb+lnbinc)
 									generated.append('%s rem %s'%(lnb,l))
+									v = len(l[1:])
+									if v not in pointers : pointers[v] = []
+									pointers[v].append( [ l[1:],str(lnb+lnbinc) ] )
 								else :
 									generated.append('%s %s'%(lnb,l))
 								lnb += lnbinc
-
+				
+				# from the longest keywords to the smaller ones
+				order = list(pointers.keys())
+				order.sort()
+				order.reverse()
+				
+				for v in order :
+					for keyword,line_number in pointers[v] :
+						print(keyword)
 				for li,line in enumerate(generated) :
 					if 'rem' not in line.split()[1].lower() :
-						for keyword,line_number in pointers.items() :
+						for v in order :
+							for keyword,line_number in pointers[v] :
 								if keyword in line :
 									generated[li] = generated[li].replace(keyword,line_number)
 									
