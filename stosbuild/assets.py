@@ -72,45 +72,46 @@ FLOPPIES = {
 			],
 		'TEMPLATES' : {
 			"SAMNAS01.ASC" : [
-				"SAMNAS01/main.asc.tpl",
-				"SAMNAS01/subs.asc.tpl",
+				"licence.asc.tpl",
+				"game.asc.tpl",
+				"common.asc.tpl",
 				],
-			"SAMNLE01.ASC" : [
-				"SAMNLE01/main.asc.tpl",
-				"SAMNLE01/subs.asc.tpl",
-				],
+			# "SAMNLE01.ASC" : [
+				# "licence.asc.tpl",
+				# "SAMNLE01/subs.asc.tpl",
+				# ],
 			},
 		},
-	'tpl_all' : {
-		'ASSETS' : [
-			"SAM0.BLK",		# title as a PI1 Degas Elite file, compressed
-			"SAM1.BLK",		# bricks and art
-			"SAM2.BLK",		# menu screen
-			"MUSIC.MBK",	# music STOS library
-			"SPRITES.MBK",	# sprites STOS library
-			"NIVO.SAM",
-			"SAM1.SAM",		# 1st game level
-			"SAM2.SAM",		# etc...
-			"SAM3.SAM",
-			"SAM4.SAM",
-			"SAM5.SAM",
-			"SAM6.SAM",
-			"SAM7.SAM",
-			"SAM8.SAM",
-			"SAM9.SAM",
-			"SCORES.SAM",	# hall of fame
-			"ASSETS",		# cc BY-SA licence notice
-			],
-		'SOURCES' : [
-			"COPYING",		# gplv3 licence
-			],
-		'TEMPLATES' : {
-			"SAMNAS01.ASC" : [
-				"SAMNAS01/all.asc.tpl",
-				],
-			"SAMNLE01.ASC" : [
-				"SAMNLE01/all.asc.tpl",
-				],
-			},
-		},
+	# 'tpl_all' : {
+		# 'ASSETS' : [
+			# "SAM0.BLK",		# title as a PI1 Degas Elite file, compressed
+			# "SAM1.BLK",		# bricks and art
+			# "SAM2.BLK",		# menu screen
+			# "MUSIC.MBK",	# music STOS library
+			# "SPRITES.MBK",	# sprites STOS library
+			# "NIVO.SAM",
+			# "SAM1.SAM",		# 1st game level
+			# "SAM2.SAM",		# etc...
+			# "SAM3.SAM",
+			# "SAM4.SAM",
+			# "SAM5.SAM",
+			# "SAM6.SAM",
+			# "SAM7.SAM",
+			# "SAM8.SAM",
+			# "SAM9.SAM",
+			# "SCORES.SAM",	# hall of fame
+			# "ASSETS",		# cc BY-SA licence notice
+			# ],
+		# 'SOURCES' : [
+			# "COPYING",
+			# ],
+		# 'TEMPLATES' : {
+			# "SAMNAS01.ASC" : [
+				# "SAMNAS01/all.asc.tpl",
+				# ],
+			# "SAMNLE01.ASC" : [
+				# "SAMNLE01/all.asc.tpl",
+				# ],
+			# },
+		# },
 	}
