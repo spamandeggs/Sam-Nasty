@@ -383,10 +383,7 @@ def generate() :
 				order = list(pointers.keys())
 				order.sort()
 				order.reverse()
-				
-				for v in order :
-					for keyword,line_number in pointers[v] :
-						print(keyword)
+
 				for li,line in enumerate(generated) :
 					if 'rem' not in line.split()[1].lower() :
 						for v in order :
