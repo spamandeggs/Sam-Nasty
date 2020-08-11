@@ -35,3 +35,19 @@ rem You should have received a copy of the GNU General Public License
 rem along with Sam Nasty.  If not, see <https://www.gnu.org/licenses/>.
 rem 
 rem GPL-3.0-or-later
+
+clear
+COMPILED=0 : COMPDELAY=1 : DEVEL=0 : TRACE=0
+
+on error goto GO_EXIT
+if COMPILED=1 then break off
+
+clear key : hide : mode 0 : curs off : reset zone : colour 14,$0 : key off : click off : fade 1
+
+rem load panel
+reserve as data 2,5585
+bload "SAM0.BLK",2 : unpack 2,back : erase 2
+get palette (back) : screen copy back to logic
+dim COLINTRO(15) : for I=0 to 15 : COLINTRO(I)=colour(I) : next I
+
+gosub SUB_GET_BANKCOUNT

@@ -17,18 +17,52 @@
 # 
 # GPL-3.0-or-later
 
+rem SUB_SCROLLS_DEF
+@SUB_SCROLLS_DEF
+def scroll 1,0,0 to 320,184,8,0
+def scroll 8,0,0 to 320,184,-8,0
+def scroll 3,0,8*PTIT to 320,8*PTIT*2,-8,0
+return
+
 rem WAIT FOR ANY KEY PRESSED OR FIRE
 @SUB_WAIT_KEY_FIRE
 if inkey$="" and joy<16 then SUB_WAIT_KEY_FIRE
 clear key
 return
 
+rem WAIT FOR FIRE
+@SUB_WAIT_FIRE
+while joy<16 : wend
+return
+
+rem WAIT FOR FIRE
+@SUB_WAIT_FIRE_RELEASE
+while joy>=16 : wend
+return
+
+rem MOUSE
+@WAIT_MOUSE1_RELEASE
+while mouse key=1 : wend : return
+@WAIT_MOUSE2_RELEASE
+while mouse key=2 : wend : return
+@WAIT_MOUSE2_RELEASE
+while mouse key=3 : wend : return
+@WAIT_MOUSE_RELEASE
+while mouse key=3 or mouse key=2 or mouse key=1 : wend : return
+
+rem WAIT FOR FIRE
+@SUB_WAIT_FIRE_RELEASE
+while joy>=16 : wend
+return
+
+
+
 rem WAIT FOR ANY KEY OR FIRE RELEASE
 @SUB_WAIT_KEY_FIRE_RELEASE_DELAY
 DELAY=0 : MXDELAY=200 : key speed 1,1 : while joy>=16 : wend
-@GO_10810
+@WAITKFR
 if inkey$="" then inc DELAY else DELAY=0 : clear key
-if DELAY<MXDELAY then GO_10810
+if DELAY<MXDELAY then WAITKFR
 clear key
 return
 
@@ -36,10 +70,10 @@ rem DELAY 4 SECS OR FIRE/ANY KEY (1 SEC MIN.)
 @SUB_WAIT_KEY_FIRE_DELAY
 timer=0 : clear key : key speed 1,1
 while timer<200
-if timer<50 then GO_10540
+if timer<50 then WAITKF
 if joy>=16 then timer=200
 if inkey$<>"" then timer=200
-@GO_10540
+@WAITKF
 wend
 gosub SUB_WAIT_KEY_FIRE_RELEASE_DELAY
 return
@@ -56,7 +90,7 @@ return
 
 rem SUB FADE TO BLACK COMMON
 @SUB_FADE_BLACK
-fade 3 : wait 21 : sprite off : move off : flash off : cls
+fade 3 : wait 21 : sprite off : move off : flash off : cls logic : cls back
 return
 
 rem exit to STOS or gem
@@ -64,3 +98,4 @@ rem exit to STOS or gem
 default : key speed 6,6
 if errl<>0 then print "code erreur : ";errl : wait key
 erase 2 : end
+

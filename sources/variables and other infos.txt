@@ -1,0 +1,491 @@
+TILES/SCREEN/COORDS
+-------------------
+	
+	Y	0	top
+		200	bottom
+	
+	320x200	pixels
+	40x25	8x8 tiles
+	
+	640x200
+	
+	SAM limits
+		X		[8,312]
+		Y		[ ? , 184 ]
+		
+		death at Y > 184
+
+FILES
+-----
+	
+	SAM0.BLK	title
+	SAM1.BLK	bricks / art / editor ui
+	SAM2.BLK	menu
+	
+LEVELS
+------
+	0	?
+	1	classique
+	2	on rampe, 2 lasers, puis vin et flic juste avant la sortie
+	3	le saut de la mort, les lasers a éviter juste avant la sortie
+	4	brique en mouvement au dessus de pics, scie sous la sortie
+	5	clé top-left, puit caché, 2 flics
+	6	recup des 2 clés cachées par les pics (a revoir)
+	7	precipice avec 2 passages secret - et le dog
+	8	potion invicibilité, dog, sortie en bas a left, de la ou l'on part
+	9	pics a passer sur une brique mouvante, 2 manettes au debut a actionner
+		pieges partout, salle des coffres
+
+COLOR POINT TESTS
+-----------------
+	X+E
+	X+1
+	X-1
+	X
+	X-E-DXY+1
+	Y
+	Y-15
+	Y-12
+	Y-4
+	Y-1
+	Y-5
+	Y-6
+	Y-9
+	
+	DXY		1 or 2
+
+COLOUR 
+------
+
+	0	$000	background colors
+	1	$112
+	2	$113
+	3	$223
+	
+	4	$334
+	5	$531
+	6	$521
+	7	$310
+	
+	8	$770
+	9	$700	
+	10	$346	collision colors
+	11	$667
+	
+	12	$556
+	13	$227
+	14	$000
+	15	$777
+	
+	color are used for colision detection
+	the V variable, which is 9, defines the last color index considered as background.
+
+BANKS
+-----
+
+	1	sprites
+	2	icons	
+	3	music
+		1		main theme
+		2		start music
+		3		death
+		4		menu theme
+	
+	4	screen	game level x of player y
+	5	screen	game level x of player y
+	..	screen	wip memory allocation depending on available ram
+	
+SPRITES
+-------
+
+	16x16 pixels with 0,0 top left
+	hotspot is 7 15 (bottom middle) when Sam sprite to the left.
+	hotspot is 8 15 to the right
+	
+	SPRITE TYPE - ST() var
+		
+		0		WARDERS
+		1		DOGS
+		2		SAW ground
+		3		SAW ceiling
+		4		elevator
+		5		SAW right wall
+		6		SAW left wall
+		
+		7		?
+		...?
+		9		?
+		
+	SPRITES.MBK
+	
+		SAM
+			2			idle right
+			3-5			walk cycle right
+			6-7			crouch anime right
+			8-9			crawl cycle right
+			10			jump right
+			11			idle left
+			12-14		walk cycle left
+			15-16		crouch anime left
+			17-18		rampe cycle left
+			19			jump left
+			20			3/4 left rotation
+			21			3/4 right rotation
+		
+		GUARD
+			22-24		walk cycle right
+			25-27		walk cycle left
+			28			fire right
+			29			fire left
+			30			fire crouch right
+			31			fire crouch left
+			32			bullet
+		
+		SAM
+			33-34		death : electric shock alt.
+			35-41		death : electric shock ashes
+			42			death : out of screen jump left 
+			43			death : out of screen jump right
+			44-47		death : out of screen soul climbing
+			48-52		death : splitted by a saw
+			53-55		ladder cycle
+			56-62		climb right
+			63-69		climb left
+		
+		70			ugly elevator
+		71			brick
+		
+		GUARD
+			72-74		ladder cycle
+		
+		WATCHDOG
+			75-76		idle right
+			77-78		run cycle right
+			79-80		idle left
+			81-82		run cycle left
+		
+		83		EMPTY
+		84		EMPTY
+		85		brick 16x8 px / 2x1 tiles
+		
+		SAW
+			86-87	cycle floor
+			88-89	cycle ceiling
+		
+		SAM
+			90		action right
+			91		action left
+		
+		92		EMPTY
+		93		brick 16x16 / 2x2 tiles
+		94		EMPTY
+		95		EMPTY
+		96		EMPTY
+		
+		SAW
+			97-98	cycle wall right
+			99-100	cycle wall left
+		
+		SAM
+			101-104		punch right
+			105-108		punch left
+		
+		GUARD
+			109-111		hit from right
+			112-114		hit from left
+			115-116		knocked out
+		
+		WATCHDOG
+			117-118		jump right
+			119-120		jump left
+			121-122		eat left
+			123-124		eat right
+		
+		GUARD
+			125-126		mocking
+		
+		SAM
+			127-128		mocking
+		
+		129		EMPTY
+		130		EMPTY
+
+
+	laughing warders :
+	
+		for I=2 to NTS(NBPL)
+			if ST(NBPL,I)=0 or ST(NBPL,I)>=9 
+				anim I,"(125,7)(126,7)l"
+				
+BLOCKS
+------
+
+	COE$		coeur/live
+	BLK$
+		328		SAM player 1 icon
+		329		SAM player 2 icon
+
+IN-GAME KEYS
+------------
+
+	space	pause
+	esc		game over. during game back to menu (no warning...)
+	A		suicide
+
+ZONES TYPES
+-----------
+	
+	type is stored in the ZNE level var ZNE(NBPL,Z)
+	with Z = the zone sam is in
+	
+		1		SPIKES LOW			DEAD BY ? OUT OF SCREEN JUMP
+		2		TAPIS ELECTRIQUE	DEAD BY ELECTRIC SHOCK
+		3							ADJUSTING CLIMB RIGHT POSITION (5350)
+		4		LADDER				3060	4120
+		5		6160 decrement X
+		6		6210 increment X
+		7		6260 decrement X
+		8		6320 increment X
+		9		SAM MADE IT
+		
+		# 20-29 non permanent object - sam take the object found in the zone 
+		20		OBJECT NKEY
+		21		CLE OR				OBJECT OKEY
+		22		BOTTLE OF WINE
+		23		WREATH
+		24		EXTRA LIFE
+		25		COIN
+		26		INVICIBLE POTION
+		27
+		28
+		29
+		
+		# 30-39 
+		30		RAYONS vert or hor
+		31		RAYONS vert or hor
+		?
+		
+		# 40-59
+		
+		40		BOUTON (caché) ?
+		41		SERRURE
+		
+		# 60-79 ?
+		
+		# 80-110 ?
+		100		zone escamotable conditionnée
+		
+		
+	ZNE(NBPL,Z)
+	ZNE2(NBPL,ZNE(NBPL,Z)-30)
+		
+		40		bouton
+		60		declencheur
+		80		porte
+		81		porte
+		90		block sprite
+		
+GAMEPAD
+-------
+
+	d=JOY
+	d = bit number
+	0			Joystick moved up
+	1			Joystick moved down
+	2			Joystick moved left
+	3			Joystick moved right
+	4			Fire button pressed 
+
+	d=JOY
+	16		8		4		2		1
+	FIRE	RIGHT	LEFT	DOWN	UP
+	ex : 24 = FIRE + RIGHT
+	
+	on J goto ...
+		1	SAM_JUMP
+		2	SAM_CROUCH
+		
+		4	SAM_LEFT
+		5	SAM_JUMP
+		6	SAM_CRAWL_L
+
+		8	SAM_RIGHT
+		9	SAM_JUMP
+		10	SAM_CRAWL_R
+	
+VARS
+----
+	TIC				ticrate. pour compenser la compilation, introduit un délai
+					sur les inputs joystick surtout
+	PLR				id du joueur 0 ou 1
+	PPLR			l'autre joueur (inverse de PLR)
+	NBP				nb de joueur. 1 ou 2
+	MPBL(PLR)		nb de vies du joueur. initié à 5
+	VV(PLR)			initié à 0. compteur subalterne pour l'extralife obtenu chaque 
+	LVL(PLR)		initié à NWLVL
+	SC(PLR)			score du joueur PLR
+	WIN				egale a PLR, celui ayant le meilleur score durant la partie
+	NWLVL			initié à 1
+	LVLMX			nb total de niveaux. lu depuis NIVO.Sam
+	FX				son du jeu. 0 ou 1
+	SELTIM			timer a priori tout ce qui fini en TIM
+	DEMO			1 : 1st level demo playing, 0 : normal mode, -1: demo just end
+	DEMP			pointeur de sequence pour les champs de mouvements de la démo (JDEM et DEMTIM)
+					sorte de sequenceur incrémenté quand TDEM-1 arrive a zero
+	JDEM(DEMP)		mouvement du pad a la sequence DEMP (démo)
+	DEMTIM(DEMP)	durée du mouvement a la sequence DEMP (démo)
+	BLK				
+	SAM$			USR ou SAM prefixe des noms de niveaux, SAM étant ceux des builtins et USR des persos
+	
+	MUS				0 music off, 1 music on
+	MUS2			(re)lance la musique du menu
+	YSC				initié à 6. soit la 1ere ligne d'options du menu (players)
+	C				sam sprite to display
+	CR				0 sam is standing
+					1 crouch
+					2 crawl
+		
+	V				9. color collision index. <= V = background, no collision
+	PLAT			tricky.. sprite value idx, -1, 0 means 
+	E				point color test for collision : SAM width/2 point (X +|- E).
+	FOUY			entier. redéfini FOUY depuis AC3$ (champ suivant, separateur /), redéfini AC3 (efface le champ)
+	SPR$			animations nucléaires de sprites. SPR$(id_character,id_anime)
+					id_character
+						0	guard
+						1	watchdog
+						2	scie circular floor
+						3	scie circular ceiling
+						4
+						5	scie circular wall right
+						6	scie circular wall left
+						7
+	SUPERM			invicible during 300 (units?)
+	BOTIM			time bonus quand > 0
+	
+	NBPL			current level index. varies depending on the available memory
+					also index of a bank number where the built level is kept
+	NTS(NBPL)		number of sprites in this level. 1 means sam is alone.
+	NTZ(NBPL)		number of zone in in this level
+	XM(NBPL,I)		NPC I x start location
+	YM(NBPL,I)		NPC I y start location
+	SP(NBPL,I)		NPC I sprite at start (at least)
+	ST(NBPL,I)		NPC I type
+	FLP(NBPL,I)		NPC I related
+	
+	MP(NBPL,I,X,Y)	define the brick index (in BLK$) to add in layer I, at X,Y tile location
+					I : 0|1 , level layer
+					X : 0-39, X axis
+					Y : 0-22, Y axis
+					
+	ZNE(NBPL,I)		I : zone index 1-110 initié à zero
+	ZNE2(NBPL,I)	I : 1-80 initié à zero
+	ACT$(NBPL,I)	I : 1-80 initié à ""
+	
+	MOUSKY(NBPL)	1er champ du fichier, INT
+	
+	BANK			var generique.
+	BANKCOUNT		nombre max de banque screen reservé 5 signifie 6 banques
+	FIRSTLVLSCR		premiere screen bank utilisé par les niveaux
+					lea autres suivent
+	BONUSPANELDONE	le SUB panel de bonus est apellé depuis 2 endroits :
+					soit quand il faut charger le fichier niveau+1 (SUB READ LEVEL FILE) BONUSPANELDONE vaut 1
+					soit quand le niveau+1 est déjà chargé (depuis SAM MADE IT) BONUSPANELDONE vaut 0
+	
+	
+	EDITOR VARS
+	-----------
+		
+		IC$			user interface elements
+			 1		16x16 block, move tile (x/y axis representation)
+			 2		16x16 block, tile with 2 sam heads
+			 3		16x16 block, camera tile
+			 4		16x16 block, NPC animate tile (loop)
+			 5		16x16 block, NPC "!" tile
+			 6		16x16 block, "x" and select 8x16 tiles
+			 7		16x16 block, NPC animate tile (one way)
+			 8		16x16 block, animate tile up/down
+			 9		16x16 block, MAIN "GO" tile
+			10		16x16 block, MAIN tile with a 8x8 brick centered
+			11		16x16 block, MAIN tile with a 8x8 brick centered²
+			12		16x16 block, MAIN animate tile left right with a head cop
+			13		16x16 block, MAIN camera and ladder tile
+			14		16x16 block, MAIN floppy tile
+			15		16x16 block, return tile
+			16		16x16 block, floppy load tile
+			17		16x16 block, floppy save tile
+			18		16x16 block, redraw level tile
+			19		16x16 block, ?
+			20		16x16 block, draw square and fill tiles
+			21		40x16 block, 2 grey arrows, (brick selected)
+			22		40x16 block, 2 grey arrows with a glitch above
+			23		not a screen block
+			24		8x16 block, left arrow
+			25		8x16 block, "x" tile
+			26		8x16 block, right arrow
+			27		8x16 block, draw square tile
+			28		8x16 block, fill tile
+			29		8x16 block, "s" tile
+			30		8x16 block, "c" tile
+			31		8x16 block, "1" tile
+			32		8x16 block, "2" tile
+			33		8x16 block, "3" tile
+			34		8x16 block, 2 left arrows tiles 
+			35		8x16 block, 2 right arrows tiles 
+			36		8x16 block, "CL" tile
+			37		8x16 block, "3" tile
+			38		8x16 block, "3" tile
+			39		empty
+			40		empty
+			41		empty
+	
+ASCII
+-----
+	ESC		27
+			32		met en souligné
+			
+	!		33
+	"		34
+	#		35
+	$		36
+	%		37
+	&		38
+	'		39
+	(		40
+	)		41
+	*		42
+	+		43
+	,		44
+	-		45
+	.		46
+	/		47
+	0-9		48-57
+	:		58		
+	;		59		
+	<		60		
+	=		61		
+	>		62		
+	?		63		
+	@		64		
+ 	A-Z		65-90
+	[		91
+	\		92
+	]		93
+	^		94
+	_		95
+	`		96
+	a-z		97-122
+	{
+	|
+	}
+	~
+	<<		174
+	>>		175
+	triangle
+	...		255
+	
+SCANCODE
+--------
+	72 fleche haut
+	80 fleche bas
+	75 fleche left
+	77 fleche droit

@@ -17,69 +17,48 @@
 # 
 # GPL-3.0-or-later
 
-clear
-COMPILED=0 : COMPDELAY=1 : DEVEL=0 : TRACE=0
-
-on error goto GO_EXIT
-if COMPILED=1 then break off
-clear key : hide : mode 0 : curs off : reset zone : colour 14,$0 : key off
-reserve as data 2,5585
-bload "SAM0.BLK",2 : unpack 2,back : erase 2
-get palette (back) : screen copy back to logic
-dim COLINTRO(15) : for I=0 to 15 : COLINTRO(I)=colour(I) : next I
-click off : PTIT=11
 gosub SUB_SCROLLS_DEF
+gosub SUB_SCROLLS_GAME
 
-rem VARIABLES
-dim BLK$(600),IC$(50),MPBL(1),LVL(1),COEUR$(1)
+rem common arrays
+dim MP(BANKCOUNT,1,40,22)
+dim AN$(BANKCOUNT,8,10),MOV$(BANKCOUNT,8,10),SS(BANKCOUNT,8)
+dim AL(BANKCOUNT,8),AL2(BANKCOUNT,8)
+dim SBLK(BANKCOUNT,7,2),RTRP$(BANKCOUNT,8)
+dim DGEM$(BANKCOUNT,8,3),ACT$(BANKCOUNT,80),NZID(BANKCOUNT,10),NZIO(BANKCOUNT,10)
+dim NZIF(BANKCOUNT,10),CTIM(BANKCOUNT,10)
+dim LIN$(BANKCOUNT)
+
+rem game arrays
+dim LVLBANK(BANKCOUNT)
+dim XD(BANKCOUNT),YD(BANKCOUNT)
+dim CZI(BANKCOUNT)
+dim MOUSKY(BANKCOUNT)
+
+rem MENU PANEL VARIABLES
+
+dim MPBL(1), LVL(1),COEUR$(1)
 dim SC(1),NAM$(9),SCO$(9),TXT$(16)
 dim GAMEMDE$(2) : GAMEMDE$(0)="EASY " : GAMEMDE$(1)="NORMAL" : GAMEMDE$(2)="HARD " : GMID=1
-BGD=365 : MANETS=357 : FMANETS=361 : OPTN=110
-dim JDEM(50),TDEM(50),VV(1) : SAM$="SAM"
+
+dim VV(1) : SAM$="SAM"
 JDEM(1)=4 : TDEM(1)=106 : JDEM(2)=1 : TDEM(2)=23 : JDEM(3)=9 : TDEM(3)=4 : JDEM(0)=1 : TDEM(0)=10
 JDEM(4)=8 : TDEM(4)=10 : JDEM(5)=8 : COD$="TELEPORT-ME-NOW" : TDEM(5)=125 : JDEM(6)=1 : TDEM(6)=23
 JDEM(7)=4 : TDEM(7)=91 : JDEM(8)=1 : TDEM(8)=23
 JDEM(9)=8 : TDEM(9)=35 : JDEM(10)=0 : TDEM(10)=190 : JDEM(11)=8 : TDEM(11)=40 : JDEM(12)=16 : TDEM(12)=3
 JDEM(13)=4 : TDEM(13)=100 : TDEM(14)=rnd(4) : JDEM(14)=58
 TXT$(1)="UP : TO JUMP OR TO CLIMB UP" : TXT$(2)="DOWN : TO STOOP OR TO GO DOWN"
-TXT$(9)="UP : TO JUMP AND TO CLIMB UP" : TXT$(10)=" TO CREEP OR TO GO DOWN " : TXT$(5)="UP : TO JUMP AND TO CLIMB UP" : TXT$(6)=" TO CREEP OR TO GO DOWN " : TXT$(16)="TO HIT A GUARD,TO USE A HANDLE OR A KEY" : TXT$(4)="LEFT : TO GO LEFT ( WHAT A SURPRISE...)" : TXT$(8)="RIGHT : TO GO RIGHT..."
+TXT$(9)="UP : TO JUMP AND TO CLIMB UP" : TXT$(10)=" TO CREEP OR TO GO DOWN "
+TXT$(5)="UP : TO JUMP AND TO CLIMB UP" : TXT$(6)=" TO CREEP OR TO GO DOWN " 
+TXT$(16)="TO HIT A GUARD,TO USE A HANDLE OR A KEY" : TXT$(4)="LEFT : TO GO LEFT ( WHAT A SURPRISE...)"
+TXT$(8)="RIGHT : TO GO RIGHT..."
+
 dim SCXY(39,18) : dim LINEXCLU(18) : rem TEXT FX RELATED
 NBP=1 : NWLVL=1 : MUS=1 : FX=1 : NBPL=0 : LVL(0)=1 : LVL(1)=1
-MVG$=" ( 3,-2," : MVD$=" ( 3, 2," : MVN$=" (10, 0,"
-rem SPRITES ANIMES DEFS
-dim SPR$(8,7)
-rem circular saw ceiling (3)
-SPR$(3,0)="(88,0)"
-SPR$(3,1)="(88,4)(89,4)L"
-rem circular saw floor (2)
-SPR$(2,0)="(86,0)"
-SPR$(2,1)="(86,4)(87,4)L"
-rem circular saw wall right (5)
-SPR$(5,0)="(97,0)"
-SPR$(5,1)="(97,4)(98,4)L"
-rem circular saw wall left (6)
-SPR$(6,0)="(99,0)"
-SPR$(6,1)="(99,4)(100,4)L"
-rem watchdog (1)
-SPR$(1,0)="(79,4)(80,4)L"
-SPR$(1,1)="(75,4)(76,4)L"
-SPR$(1,2)="(77,6)(78,6)L"
-SPR$(1,3)="(81,6)(82,6)L"
-SPR$(1,4)="(121,6)(122,6)L"
-SPR$(1,5)="(123,6)(124,6)L"
-SPR$(1,6)="(117,100 )(118,3)"
-SPR$(1,7)="(119,100 )(120,3)"
-rem guard (0)
-SPR$(0,0)="(25,0)"
-SPR$(0,1)="(22,0)"
-SPR$(0,2)="(22,4)(23,4)(24,4)L"
-SPR$(0,3)="(25,4)(26,4)(27,4)L"
-SPR$(0,4)="(72,4)(73,4)(74,4)(73,4)L"
-rem elevator
-SPR$(4,0)="(70,0)"
+
 dim HLP$(20) : rem help panel 2. todo why here.
 rem BRICKS CREATION
-gosub SUB_LEVEL_ARRAYS : cls back : reserve as data 2,16613
+cls back : reserve as data 2,16613
 bload "SAM1.BLK",2 : fade 1 : wait 7 : cls logic : unpack 2,back
 erase 2
 get palette (back) : wait 50 : dim COLLVL(15) : for I=0 to 15 : COLLVL(I)=colour(I) : colour I,0 : next I
@@ -89,6 +68,8 @@ LVLPIC2$=screen$(back,80,142 to 144,170)
 ink 0 : bar 192,138 to 204,145 : PAUSE$=screen$(back,205,139 to 320,183)
 COE$=screen$(back,96,80 to 112,88) : gosub GO_11900
 screen copy back,0,0,320,8*PTIT to logic,0,0
+
+rem to misc differences between game and editor cuts
 screen copy logic,0,0,320,8*PTIT to logic,0,8*PTIT
 scroll 3 : screen copy logic to back
 ink 0 : for X=1 to 40 step 2 : bar X*8,0 to X*8+7,8*PTIT*2 : next X
@@ -124,6 +105,8 @@ IND=364 : DEP=10 : ARR=10 : XDEP=26 : XARR=40 : CISO=15 : goto CUT_LOOP
 rem CUT_END
 @CUT_END
 BLK$(469)=BLK$(319) : BLK$(379)=BLK$(416) : BLK$(380)=BLK$(417)
+
+
 O=1
 gosub GO_11940
 cls back : cls logic
@@ -279,21 +262,23 @@ LVL(PLR)=NWLVL : rem key speed 6,6 end
 if NBP=2 and MPBL(PPLR)>0 then GO_2160
 gosub GO_11100 : goto GO_1260
 rem AFTER DEATH
-@GO_2080
+@SAM_DEATH_COMMON
 music off : pop : gosub GO_8524 : for I=2 to NTS(NBPL) : if ST(NBPL,I)=0 or ST(NBPL,I)>=9 then anim I,"(125,7)(126,7)l" : move off I
 next I : anim on
 if MPBL(PLR)>0 then dec MPBL(PLR)
 if MPBL(PLR)>0 then if MUS=1 then music 3
 gosub SUB_WAIT_KEY_FIRE_DELAY
 if DEMO=1 then DEMO=-1 : goto GO_1260
-auto back on : gosub GO_8000
+auto back on : gosub GAME_LEVEL_CLEAN
 if MPBL(PLR)=0 then GO_1940
 if NBP=1 or MPBL(PPLR)=0 then SUB_PANEL_INTERLEVEL
+
 rem PLAYER SWITCH
 @GO_2160
 PLR=PPLR : O=LVL(PLR)
 gosub GO_11100
 goto SUB_PANEL_INTERLEVEL
+
 rem INTER-LEVEL PANEL
 @SUB_PANEL_INTERLEVEL
 gosub SUB_FADE_BLACK : gosub SUB_HACK_TIP : if DEMO=1 then gosub SUB_FADE_LEVEL : goto GO_2270
@@ -304,19 +289,10 @@ gosub SUB_FADE_LEVEL
 gosub SUB_WAIT_KEY_FIRE_DELAY
 @GO_2270
 music off : gosub SUB_FADE_BLACK : screen copy FIRSTLVLSCR+BANK to back : screen copy FIRSTLVLSCR+BANK to logic
-goto GO_3340
-rem SAM MADE IT
-@GO_2290
-pop : music on : anim off : move off : anim 1,"(127,4)(128,5)l"
-anim on : gosub SUB_WAIT_KEY_FIRE_DELAY
-anim off : sprite 1,X,Y,21 : wait 2 : gosub GO_8000 : inc LVL(PLR) : O=LVL(PLR)
-gosub GO_9650 : if LVL(PLR)<=LVLMX then gosub GO_11100
-while BONUSDONE=0 : gosub GO_9740 : wend
-gosub SUB_WAIT_KEY_FIRE_DELAY
-gosub SUB_FADE_BLACK
-if LVL(PLR)>LVLMX then GO_9870
-goto SUB_PANEL_INTERLEVEL
+goto GAME_INIT
 
+rem GAMING LOOP
+rem almost identical to editor code
 rem TESTS COLLISIONS / MOUVEMENTS NPC
 @GAME_MAIN_SUB
 if timer<100 or SUPERM>0 then sprite 1,340,100 : wait vbl : if SUPERM>0 then dec SUPERM : if SUPERM=3 then transpose PLR
@@ -338,9 +314,9 @@ MZI=1 : inc CZ2 : if CZ2=CZI(NBPL)+1 then CZ2=0
 AC3$=ACT$(NBPL,CZ2) : inc CTIM(NBPL,CZ2) : if CTIM(NBPL,CZ2)=NZIF(NBPL,CZ2)+NZIO(NBPL,CZ2) then CTIM(NBPL,CZ2)=0
 @GO_2630
 I=val(AC3$)
-if I=0 then GO_2680 else gosub GO_7350
-if CTIM(NBPL,CZ2)=0 then IK=8 : on ZNE2(NBPL,CZ2) gosub GO_7120,GO_7050,GO_7120,GO_7120 : music on : if ZNE2(NBPL,CZ2)=2 then GO_2630
-if CTIM(NBPL,CZ2)=NZIO(NBPL,CZ2) then IK=1 : on ZNE2(NBPL,CZ2) gosub GO_7120,GO_7050,GO_7120,GO_7120 : music on : if ZNE2(NBPL,CZ2)=2 then GO_2630
+if I=0 then GO_2680 else gosub SET_FOUY
+if CTIM(NBPL,CZ2)=0 then IK=8 : on ZNE2(NBPL,CZ2) gosub GAME_MOBILES_UPDATE,GAME_LASER_UPDATE,GAME_MOBILES_UPDATE,GAME_MOBILES_UPDATE : music on : if ZNE2(NBPL,CZ2)=2 then GO_2630
+if CTIM(NBPL,CZ2)=NZIO(NBPL,CZ2) then IK=1 : on ZNE2(NBPL,CZ2) gosub GAME_MOBILES_UPDATE,GAME_LASER_UPDATE,GAME_MOBILES_UPDATE,GAME_MOBILES_UPDATE : music on : if ZNE2(NBPL,CZ2)=2 then GO_2630
 @GO_2680
 MZI=0 : if NTS(NBPL)=1 then GO_2930 else DRC=0 : inc NTS2 : if NTS2=NTS(NBPL)+1 then NTS2=2
 if AL(NBPL,NTS2)=0 and AL2(NBPL,NTS2)=0 then GO_2790 else if ST(NBPL,NTS2)>=9 then GO_2790 else if ST(NBPL,NTS2)<>0 then GO_2730
@@ -373,25 +349,26 @@ move on NTS2 : anim on NTS2
 if movon(15)=0 then sprite off 15
 if movon(14)=0 then sprite off 14
 if movon(13)=0 then sprite off 13
-rem SUBSCRIPT OUT OF RANGE
-@GO_2970
-Z=zone(1) : if Z<>0 then GO_2985 else GO_2975
-@GO_2975
-if PSTZ=0 and ZNE(NBPL,Z)=O then GO_3040
-if ZNE(NBPL,PSTZ)>30 then if ZNE2(NBPL,ZNE(NBPL,PSTZ)-30)=0 then GO_7810
-PSTZ=0 : goto GO_3040
-@GO_2985
-on ZNE(NBPL,Z) goto SAM_DEATH_CONTACT,SAM_DEATH_ELECTRIC,GO_5350,GO_3060,GO_6160,GO_6210,GO_6260,GO_6320,GO_2290
-if ZNE(NBPL,Z)>=20 and ZNE(NBPL,Z)<=29 then GO_8250
-if PSTZ<>0 then if Z=PSTZ then GO_3040 else if ZNE2(NBPL,ZNE(NBPL,PSTZ)-30)=0 then GO_7810 else PSTZ=0 : goto GO_3040
-if ZNE(NBPL,Z)>=60 and ZNE(NBPL,Z)<=79 then GO_7820
-if ZNE(NBPL,Z)>=30 and ZNE(NBPL,Z)<=39 then on ZNE2(NBPL,ZNE(NBPL,Z)-30) goto SAM_DEATH_CONTACT,SAM_DEATH_ELECTRIC,GO_3060,GO_3060
-if FEU=1 and FEU2=0 then if ZNE(NBPL,Z)>=40 and ZNE(NBPL,Z)<=59 then GO_7670
-@GO_3040
-if FEU=1 and FEU2=0 then if C<=5 then GO_7450 else if C<=14 and C>=11 then GO_7450
 
-rem #######################
-@GO_3060
+rem ZONES TEST
+@GAME_ZONE_TEST
+Z=zone(1) : if Z<>0 then GAME_ZT0
+if PSTZ=0 and ZNE(NBPL,Z)=O then SAM_ZT1
+if ZNE(NBPL,PSTZ)>30 then if ZNE2(NBPL,ZNE(NBPL,PSTZ)-30)=0 then GO_7810
+PSTZ=0 : goto SAM_ZT1
+@GAME_ZT0
+on ZNE(NBPL,Z) goto SAM_DEATH_CONTACT,SAM_DEATH_ELECTRIC,SAM_CLR0,GAME_COLLISION_SPRITES,SPEEDWALK_LEFT,SPEEDWALK_RIGHT,GO_6260,GO_6320,GAME_LEVEL_COMPLETE
+
+if ZNE(NBPL,Z)>=20 and ZNE(NBPL,Z)<=29 then GO_8250
+if PSTZ<>0 then if Z=PSTZ then SAM_ZT1 else if ZNE2(NBPL,ZNE(NBPL,PSTZ)-30)=0 then GO_7810 else PSTZ=0 : goto SAM_ZT1
+if ZNE(NBPL,Z)>=60 and ZNE(NBPL,Z)<=79 then GAME_EVENT
+if ZNE(NBPL,Z)>=30 and ZNE(NBPL,Z)<=39 then on ZNE2(NBPL,ZNE(NBPL,Z)-30) goto SAM_DEATH_CONTACT,SAM_DEATH_ELECTRIC,GAME_COLLISION_SPRITES,GAME_COLLISION_SPRITES
+if FEU=1 and FEU2=0 then if ZNE(NBPL,Z)>=40 and ZNE(NBPL,Z)<=59 then GO_7670
+@SAM_ZT1
+if FEU=1 and FEU2=0 then if C<=5 then SAM_PUNCH else if C<=14 and C>=11 then SAM_PUNCH
+
+rem COLLISION WITH SPRITES
+@GAME_COLLISION_SPRITES
 if SUPERM>0 then return
 
 TY=14 : TX=14 : if CR>=1 then TY=8 : if CR=2 then TX=18
@@ -403,21 +380,20 @@ next I : I=0
 @GO_3110
 if SP>12 then if Y<y sprite(SP) or y sprite(SP)=0 then return else SAM_DEATH_CONTACT
 if ST(NBPL,SP)>=9 then FS=SP+1 : SP=0 : if FS<15 then GO_3090 else return
-if ST(NBPL,SP)=0 or SP(NBPL,SP)>=97 then if abs(x sprite(SP)-X)>8 then return else if DEMO=0 then GO_3190 else GO_7450
+if ST(NBPL,SP)=0 or SP(NBPL,SP)>=97 then if abs(x sprite(SP)-X)>8 then return else if DEMO=0 then GO_3190 else SAM_PUNCH
 if ST(NBPL,SP)<>4 then GO_3170 else if x sprite(SP)-X>8 or x sprite(SP)-X<-8 then PLAT=0 : return
 if SAUT=0 and PLAT<>-1 then GO_3210 else return
 if Y>y sprite(SP)+2 or Y<y sprite(SP)-4 then PLAT=0 : return
 @GO_3170
 PLAT=0 : if SP(NBPL,SP)=93 or SP(NBPL,SP)=94 then if abs(x sprite(SP)-X)<=8 then GO_3190 else return
-if ST(NBPL,SP)<>3 and Y<y sprite(SP)-8 then GO_3200 else if CR>=1 and Y>=y sprite(SP) then GO_3200
+if ST(NBPL,SP)<>3 and Y<y sprite(SP)-8 then return else if CR>=1 and Y>=y sprite(SP) then return
 @GO_3190
 on ST(NBPL,SP)+1 goto SAM_DEATH_CONTACT,SAM_DEATH_CONTACT,SAM_DEATH_SAW,SAM_DEATH_SAW,GO_3200,SAM_DEATH_SAW,SAM_DEATH_SAW,SAM_DEATH_CONTACT
 @GO_3200
 return
 
-
 @GO_3210
-if Y>y sprite(SP)+2 or Y<y sprite(SP)-4 then PLAT=0 : goto GO_3200
+if Y>y sprite(SP)+2 or Y<y sprite(SP)-4 then PLAT=0 : return
 if PLAT<>SP then GO_3300 else SP2=SP : SP=0
 if point(X+x sprite(PLAT)-XPLAT-E-1,y sprite(PLAT)-4)<=V and point(X+x sprite(PLAT)-XPLAT+E+1,y sprite(PLAT)-4)<=V then GO_3240 else GO_3260
 @GO_3240
@@ -432,9 +408,10 @@ next I : I=0 : if SP=0 then return else GO_3110
 @GO_3300
 XPLAT=x sprite(SP)
 Y=y sprite(SP)-1
-PLAT=SP : goto GO_3200
-rem PREPARE DES SPRITES
-@GO_3340
+PLAT=SP : return
+
+rem prepare game level to run : add sprites
+@GAME_INIT
 PPLR=(PLR+1) mod 2
 if NTS(NBPL)=1 then GO_3370
 for I=2 to NTS(NBPL)
@@ -452,246 +429,97 @@ next II : J=0
 for I=0 to 7 : if SBLK(NBPL,I,0)<>0 then get sprite SBLK(NBPL,I,1),SBLK(NBPL,I,2),SBLK(NBPL,I,0)
 next I
 FX2=0 : gosub GO_8440
+
 gosub SUB_FADE_LEVEL : move on : anim on : hide
 TMRDSPL=0 : TIR=0 : X=XD(NBPL) : Y=YD(NBPL) : C=SP(NBPL,1) : ECH=0 : E=4 : V=9 : TEST=1 : NTS2=1 : CZ2=CZI(NBPL) : SUPERM=0 : clear key : timer=0 : volume 16 : if MUS=1 then music 1 : transpose PLR
 if TRACE=1 then locate 18,23 : print "NL"+str$(NBPL)+" BK"+str$(BANK)+" PL"+str$(PLR)+" LV"+str$(LVL(PLR)) : locate 0,20
 
-
-@GO_3520
-CR=0 : gosub GAME_MAIN_SUB : gosub GO_7360 : if point(X,Y+1)<=V and PLAT<=0 then GO_4040
-rem TRACELOG$="3520" : gosub TRACESUB
-if PLAT=0 then GO_3600 else if C=11 then GO_3560 else if point(X+E-1,Y-16)>V then PLAT=-1 : goto GO_4040
-if point(X+E-1,Y)>V then PLAT=-1 : goto GO_4040
-goto GO_3580
-@GO_3560
-if point(X-E+1,Y-16)>V then PLAT=-1 : goto GO_4040
-if point(X-E+1,Y)>V then PLAT=-1 : goto GO_4040
-@GO_3580
+@SAM_ROUTER
+CR=0 : gosub GAME_MAIN_SUB : gosub GAME_GET_JOY : if point(X,Y+1)<=V and PLAT<=0 then SAM_FALL
+if PLAT=0 then SAM_R2 else if C=11 then SAM_RO else if point(X+E-1,Y-16)>V then PLAT=-1 : goto SAM_FALL
+if point(X+E-1,Y)>V then PLAT=-1 : goto SAM_FALL
+goto SAM_R1
+@SAM_RO
+if point(X-E+1,Y-16)>V then PLAT=-1 : goto SAM_FALL
+if point(X-E+1,Y)>V then PLAT=-1 : goto SAM_FALL
+@SAM_R1
 if point(X-E,Y-12)>V or point(X-E,Y-4)>V then X=(X/8)*8+4
 if point(X+E,Y-12)>V or point(X+E,Y-4)>V then X=(X/8)*8+3
-@GO_3600
-gosub GO_7360
-on J goto GO_3640,SAM_CROUCH,GO_3620,SAM_LEFT,GO_3640,SAM_CRAWL_L,GO_3620,SAM_RIGHT,GO_3640,SAM_CRAWL_R,GO_3620,GO_3620,GO_3620,GO_3620,GO_3620
-@GO_3620
-goto GO_3520
-rem JOYSTICK UP
-@GO_3640
-if Y<16 then GO_3520
-Z=zone(1) : if Z=0 then GO_3670 else if ZNE(NBPL,Z)=4 then GO_3660 else if ZNE(NBPL,Z)<30 then GO_3670 else if ZNE2(NBPL,ZNE(NBPL,Z)-30)<>4 then GO_3670
-@GO_3660
-if point(X+E-1,Y-16)<=V and point(X-E+1,Y-16)<=V then GO_5510
-@GO_3670
-CR=0 : if J<>5 then if point(X+E-1,Y-16)>V then GO_3520
-if J<>9 then if point(X-E+1,Y-16)>V then GO_3520
-if C=11 then C=19 else C=10
-gosub GO_7360 : if J=9 and PLAT=0 then if point(X+1,Y+1)<=V then X=X+4 : if X>312 then X=312
-if J=5 and PLAT=0 then if point(X-1,Y+1)<=V then X=X-4 : if X<8 then X=8
-@GO_3720
-SAUT=0 : while SAUT<18 : if point(X+E-1,Y-12)>V or point(X-E+1,Y-12)>V then GO_4040
-inc SAUT
-Z=zone(1) : gosub GO_7360 : if Z=0 then GO_3770 else if ZNE(NBPL,Z)=4 then GO_3750 else if ZNE(NBPL,Z)<30 then GO_3770 else if ZNE2(NBPL,ZNE(NBPL,Z)-30)<>4 then GO_3770
-@GO_3750
-if J<>1 and J<>9 then if J<>5 then GO_3790
-if point(X+E-1,Y-16)<=V and point(X-E+1,Y-16)<=V then GO_5510
-@GO_3770
-if J=5 or J=9 then GO_3790
-if J=1 then GO_3790 else GO_4040
-@GO_3790
-if SAUT<10 then DXY=2 : Y=Y-2
-goto GO_3830
-if SAUT<12 then dec Y
-DXY=1
-rem TRACELOG$=str$(SAUT) : gosub TRACESUB
-rem TRACELOG$="3520" : gosub TRACESUB
-@GO_3830
-if J=9 and PLAC=0 then gosub GO_4310
-if J=5 and PLAC=0 then gosub GO_4260
-if Y<16 then Y=16
-gosub GAME_MAIN_SUB
-if MUS=0 and FX=1 then volume 16 : envel 1,200 : play 96-Y/2,1
-wend : goto GO_4040
-@GO_3890
-CR=0
-while SAUT<4
-DXY=2
-inc SAUT
-rem TRACELOG$="3900" : gosub TRACESUB
-gosub GO_7360 : Z=zone(1) : if Z=0 then GO_3960 else if ZNE(NBPL,Z)=4 then GO_3940 else if ZNE(NBPL,Z)<30 then GO_3960 else if ZNE2(NBPL,ZNE(NBPL,Z)-30)<>4 then GO_3960
-@GO_3940
-if J<>1 and J<>9 then if J<>5 then GO_3960
-if point(X+E-1,Y-16)<=V and point(X-E+1,Y-16)<=V then GO_5510
-@GO_3960
-if J=8 or J=9 then gosub GO_4310 : goto GO_4000
-if J=5 or J=4 then gosub GO_4260 : goto GO_4000
-if J<>9 and J<>8 then if C=10 then gosub GO_4310
-if J<>5 and J<>4 then if C=19 then gosub GO_4260
-@GO_4000
-Y=Y-2
-if Y<16 then Y=16
-gosub GAME_MAIN_SUB
-wend
-@GO_4040
-SAUT=0 : if Y<8 then Y=15
-rem TRACELOG$="4040" : gosub TRACESUB
-if PLAT>0 then GO_3520
-DXY=1
-if C<=10 then C=10 else C=19
-while point(X+E-1,Y+1)<=V : if point(X-E+1,Y+1)>V then SAM_LAND
-DXY=1
-gosub GO_7360 : Z=zone(1) : if Z=0 then GO_4140 else if ZNE(NBPL,Z)=4 then GO_4120
-if ZNE(NBPL,Z)<30 then GO_4140 else if ZNE2(NBPL,ZNE(NBPL,Z)-30)<>4 then GO_4140
-@GO_4120
-if J<>1 and J<>9 then if J<>5 then GO_4140
-goto GO_5510
-@GO_4140
-if J=8 or J=9 then gosub GO_4310
-if J=4 or J=5 then gosub GO_4260
-Y=Y+2
-if MUS=0 and FX=1 then volume 16 : envel 1,200 : play 96-Y/2,1
-if Y>184 then gosub SAM_DEATH_CONTACT
-gosub GAME_MAIN_SUB : if PLAT<>0 then GO_4240
-wend
-
-rem LANDING
-@SAM_LAND
-if point(X,Y+1)<=V then if point(X+E-1,Y+1)>V then X=X+3 else X=X-3
-while point(X,Y)>V : dec Y : wend
-while point(X,Y+1)<=V : inc Y : wend
-
-@GO_4240
-SAUT=0 : if C=19 or C=11 then C=11 else C=2
-goto GO_3520
-rem X LEFT LIMIT
-@GO_4260
-if X<8 then X=8
-C=19 : if point(X-E,Y-4)>V and point(X-E,Y-12)<=V then pop : goto SAM_CLIMB_L
-if point(X-E-DXY+1,Y)<=V then if point(X-E-DXY+1,Y-4)<=V and point(X-E-DXY+1,Y-8)<=V then X=X-DXY : goto GO_4350
-goto GO_4350
-goto GO_4350
-rem X RIGHT LIMIT
-@GO_4310
-if X>312 then X=312
-C=10 : if point(X+E,Y-4)>V and point(X+E,Y-12)<V+1 then pop : goto SAM_CLIMB_R
-if point(X+E+DXY-1,Y)<=V then if point(X+E+DXY-1,Y-4)<=V and point(X+E+DXY-1,Y-8)<=V then X=X+DXY
-@GO_4350
-return
+@SAM_R2
+gosub GAME_GET_JOY
+on J goto SAM_JUMP,SAM_CROUCH_TRANSITION,SAM_ROUTER,SAM_LEFT,SAM_JUMP,SAM_CRAWL_L_TRANSITION,SAM_ROUTER,SAM_RIGHT,SAM_JUMP,SAM_CRAWL_R_TRANSITION,SAM_ROUTER,SAM_ROUTER,SAM_ROUTER,SAM_ROUTER,SAM_ROUTER
+goto SAM_ROUTER
 
 rem JOYSTICK LEFT
 @SAM_LEFT
 CR=0 : if C=2 then for C=21 to 20 step-1 : gosub GAME_MAIN_SUB : next C : C=11
 restore SAM_LEFT_SPRITES
-while J=4 and point(X-E,Y-12)<=V : if point(X-E,Y-4)>V then if PLAT>0 then GO_3520 else C=66 : X=X+4 : goto GO_5280
+while J=4 and point(X-E,Y-12)<=V : if point(X-E,Y-4)>V then if PLAT>0 then SAM_ROUTER else C=66 : X=X+4 : goto SAM_CLL1
 dec X : read C : if C=0 then restore SAM_LEFT_SPRITES : read C
 if MUS=0 and FX=1 then if C=12 and C10=0 then volume 16 : envel 1,2000 : noise 25 : FX2=5
 if X<8 then X=8
-gosub GAME_MAIN_SUB : gosub GO_7360
-if PLAT<=0 and point(X,Y+1)<=V then C=19 : X=(X/8)*8+4 : goto GO_4040
+gosub GAME_MAIN_SUB : gosub GAME_GET_JOY
+if PLAT<=0 and point(X,Y+1)<=V then C=19 : X=(X/8)*8+4 : goto SAM_FALL
 wend
 C=11 : gosub GAME_MAIN_SUB
-goto GO_3520
-@SAM_LEFT_SPRITES
-data 12,12,12,13,13,13,14,14,14,0
+goto SAM_ROUTER
 
 rem JOYSTICK RIGHT
 @SAM_RIGHT
 CR=0 : if C=11 then for C=20 to 21 : gosub GAME_MAIN_SUB : next C : C=2
-restore SAM_RIGHT_SPRITES : while J=8 and point(X+E,Y-12)<=V : if point(X+E,Y-4)>V then if PLAT>0 then GO_3520 else C=59 : X=X-4 : goto GO_5430
+restore SAM_RIGHT_SPRITES : while J=8 and point(X+E,Y-12)<=V : if point(X+E,Y-4)>V then if PLAT>0 then SAM_ROUTER else C=59 : X=X-4 : goto SAM_CLR1
 inc X : read C : if C=0 then restore SAM_RIGHT_SPRITES : read C
 if MUS=0 and FX=1 then if C=3 and C10=0 then volume 16 : envel 1,2000 : noise 25 : FX2=5
 if X>312 then X=312
-gosub GAME_MAIN_SUB : gosub GO_7360
-if PLAT<=0 and point(X,Y+1)<=V then C=10 : X=(X/8)*8+3 : goto GO_4040
+gosub GAME_MAIN_SUB : gosub GAME_GET_JOY
+if PLAT<=0 and point(X,Y+1)<=V then C=10 : X=(X/8)*8+3 : goto SAM_FALL
 wend : C=2
-gosub GAME_MAIN_SUB : goto GO_3520
-@SAM_RIGHT_SPRITES
-data 3,3,3,4,4,4,5,5,5,0
-
-rem JOYSTICK DOWN
-@SAM_CROUCH
-CR=1 : if C=11 then for C=15 to 16 : gosub GAME_MAIN_SUB : next C : C=16 : goto GO_4630
-if C=2 then for C=6 to 7 : gosub GAME_MAIN_SUB : next C : C=7
-@GO_4630
-CR=1 : gosub GO_7360 : while J=2 : gosub GO_7360 : gosub GAME_MAIN_SUB
-if PLAT<=0 then if point(X+E-1,Y+1)<=V and point(X-E+1,Y+1)<=V then Y=Y+6 : goto GO_4040
-wend
-if PLAT<=0 then GO_4700
-if J=0 and Y>7 then if point(X+E-1,Y-9)<=V and point(X-E+1,Y-9)<=V then GO_4790
-if J<=6 then C=16 else C=7
-gosub GAME_MAIN_SUB : goto GO_4630
-
-@GO_4700
-gosub GO_7360 : if Y<8 then GO_4730
-if J=5 and C=16 then if point(X-1,Y+1)<=V then C=19 : goto GO_4760
-if J=9 and C=7 then if point(X+1,Y+1)<=V then C=10 : goto GO_4760
-@GO_4730
-if J=6 or J=4 then GO_4890 else if J=10 or J=8 then GO_5040
-if Y>7 and J=0 then if point(X+E-1,Y-9)<=V and point(X-E+1,Y-9)<=V then GO_4790
-gosub GAME_MAIN_SUB : gosub GO_7360 : goto GO_4700
-@GO_4760
-Y=Y+6
-if C=19 then X=X-2 else X=X+2
-CR=0 : goto GO_3890
-rem GET UP RIGHT
-@GO_4790
-if C=16 then GO_4830
-for C=7 to 6 step-1 : sprite 1,X,Y,C
-if ZNE(NBPL,Z)<>5 and ZNE(NBPL,Z)<>6 then gosub GAME_MAIN_SUB
-next C : C=2 : sprite 1,X,Y,C : goto GO_3520
-rem GET UP LEFT
-@GO_4830
-for C=16 to 15 step-1 : sprite 1,X,Y,C
-if ZNE(NBPL,Z)<>5 and ZNE(NBPL,Z)<>6 then gosub GAME_MAIN_SUB
-next C : C=11 : sprite 1,X,Y,C : goto GO_3520
+gosub GAME_MAIN_SUB : goto SAM_ROUTER
 
 rem JOYSTICK DOWN LEFT
-@SAM_CRAWL_L
+@SAM_CRAWL_L_TRANSITION
 CR=2 : if C=2 then for C=20 to 21 : gosub GAME_MAIN_SUB : next C
 for C=15 to 16 : gosub GAME_MAIN_SUB : next C
-@GO_4890
+@SAM_CRAWL_L
 CR=2 : restore SAM_CRAWL_L_SPRITES
-inc X : gosub GO_7360 : while J=4 or J=6
+inc X : gosub GAME_GET_JOY : while J=4 or J=6
 if MUS=0 and FX=1 then volume 16 : envel 7,500 : noise rnd(1)+9 : FX2=4
-if PLAT<=0 and point(X-1,Y+1)<=V then C=11 : X=X-4 : goto GO_4040
-if point(X-E,Y-1)>V then GO_4960
+if PLAT<=0 and point(X-1,Y+1)<=V then C=11 : X=X-4 : goto SAM_FALL
+if point(X-E,Y-1)>V then SAM_CWL0
 dec X : read C : if C=0 then restore SAM_CRAWL_L_SPRITES : read C
 if X<8 then X=8
-@GO_4960
-gosub GAME_MAIN_SUB : gosub GO_7360
-wend : if Y<8 then GO_4790 else if J=2 or point(X+E-1,Y-9)>V then GO_5000 else if point(X-E+1,Y-9)>V then GO_5000
-C=16 : goto GO_4830
-@SAM_CRAWL_L_SPRITES
-data 17,17,17,18,18,18,0
-
-@GO_5000
-C=16 : sprite 1,X,Y,16 : goto GO_4630
+@SAM_CWL0
+gosub GAME_MAIN_SUB : gosub GAME_GET_JOY
+wend : if Y<8 then SAM_GETUP else if J=2 or point(X+E-1,Y-9)>V then SAM_CWL1 else if point(X-E+1,Y-9)>V then SAM_CWL1
+C=16 : goto SAM_GETUP_L
+@SAM_CWL1
+C=16 : sprite 1,X,Y,16 : goto SAM_CROUCH
 
 rem JOYSTICK DOWN RIGHT
-@SAM_CRAWL_R
+@SAM_CRAWL_R_TRANSITION
 CR=2 : if C=11 then for C=21 to 20 step-1 : gosub GAME_MAIN_SUB : next C
 for C=6 to 7 : gosub GAME_MAIN_SUB : next C
-@GO_5040
+@SAM_CRAWL_R
 CR=2 : restore SAM_CRAWL_R_SPRITES
-dec X : gosub GO_7360 : while J=8 or J=10
+dec X : gosub GAME_GET_JOY : while J=8 or J=10
 if MUS=0 and FX=1 then volume 16 : envel 7,500 : noise rnd(1)+8 : FX2=5
-if PLAT=0 and point(X+1,Y+1)<=V then C=2 : X=X+4 : goto GO_4040
-if point(X+E,Y-1)>V then GO_5110
+if PLAT=0 and point(X+1,Y+1)<=V then C=2 : X=X+4 : goto SAM_FALL
+if point(X+E,Y-1)>V then SAM_CWR0
 inc X : read C : if C=0 then restore SAM_CRAWL_R_SPRITES
 if X>312 then X=312
-@GO_5110
-gosub GAME_MAIN_SUB : gosub GO_7360
-wend : if Y<8 then GO_4790 else if J=2 or point(X+E-1,Y-9)>V then GO_5150 else if point(X-E+1,Y-9)>V then GO_5150
-C=7 : goto GO_4790
-@SAM_CRAWL_R_SPRITES
-data 8,8,8,9,9,9,0
+@SAM_CWR0
+gosub GAME_MAIN_SUB : gosub GAME_GET_JOY
+wend : if Y<8 then SAM_GETUP else if J=2 or point(X+E-1,Y-9)>V then SAM_CWR1 else if point(X-E+1,Y-9)>V then SAM_CWR1
+C=7 : goto SAM_GETUP
+@SAM_CWR1
+C=7 : sprite 1,X,Y,7 : goto SAM_CROUCH
 
-@GO_5150
-C=7 : sprite 1,X,Y,7 : goto GO_4630
 rem ADJUSTING CLIMB LEFT POSITION
 @SAM_CLIMB_L
 CR=1 : while point(X-E,Y-6)>V : dec Y : C=19 : gosub GAME_MAIN_SUB : wend
 while point(X-E,Y-5)<=V : inc Y : C=19 : gosub GAME_MAIN_SUB : wend
 C=62
-@GO_5200
+@SAM_CLL0
 inc C
 if C=63 then Y=Y+5 : X=X+4
 if C=64 then dec Y
@@ -700,17 +528,17 @@ if C=67 then Y=Y-4
 if C=68 then dec Y
 if C=69 then Y=Y-3 : X=X-8
 if C=70 then C=16
-@GO_5280
+@SAM_CLL1
 ZNTEST=1 : gosub GAME_MAIN_SUB
-if C<>16 then GO_5200 else gosub GO_7360 : gosub GO_7360
-SAUT=0 : if J=2 or Y<8 then GO_4630 else if point(X-E+1,Y-8)>V or point(X+E-1,Y-8)>V then GO_4630 else GO_4830
+if C<>16 then SAM_CLL0 else gosub GAME_GET_JOY : gosub GAME_GET_JOY
+SAUT=0 : if J=2 or Y<8 then SAM_CROUCH else if point(X-E+1,Y-8)>V or point(X+E-1,Y-8)>V then SAM_CROUCH else SAM_GETUP_L
 
 rem ADJUSTING CLIMB RIGHT POSITION
 @SAM_CLIMB_R
 CR=1 : while point(X+E,Y-6)>V : dec Y : C=10 : gosub GAME_MAIN_SUB : wend
 while point(X+E,Y-5)<=V : inc Y : C=10 : gosub GAME_MAIN_SUB : wend
 C=55
-@GO_5350
+@SAM_CLR0
 inc C
 if C=56 then Y=Y+5 : X=X-4
 if C=57 then dec Y
@@ -719,78 +547,65 @@ if C=60 then Y=Y-4
 if C=61 then dec Y
 if C=62 then Y=Y-3 : X=X+8
 if C=63 then C=7
-@GO_5430
+@SAM_CLR1
 ZNTEST=1 : gosub GAME_MAIN_SUB
-if C<>7 then GO_5350 else gosub GO_7360 : gosub GO_7360
-SAUT=0 : if J=2 or Y<8 then GO_4630 else if point(X+E-1,Y-8)>V or point(X-E+1,Y-8)>V then GO_4630 else GO_4790
-rem LADDER RELATED
-@GO_5460
-if Y<16 then GO_3520
-if joy=9 or joy=5 then GO_3720
-if joy<>1 then GO_3520 else C=10 : goto GO_3720
+if C<>7 then SAM_CLR0 else gosub GAME_GET_JOY : gosub GAME_GET_JOY
+SAUT=0 : if J=2 or Y<8 then SAM_CROUCH else if point(X+E-1,Y-8)>V or point(X-E+1,Y-8)>V then SAM_CROUCH else SAM_GETUP
+
 rem LADDER
-@GO_5510
+@SAM_LADDER_END
+if Y<16 then SAM_ROUTER
+if joy=9 or joy=5 then SAM_JP2
+if joy<>1 then SAM_ROUTER else C=10 : goto SAM_JP2
+
+@SAM_LADDER_TEST
 restore SAM_LADDER_SPRITES : C=55 : SAUT=0
-@GO_5520
+@SAM_LADDER
 if SUPERM>0 or timer<100 then wait vbl
-Z=zone(1) : if Z=0 then GO_5460 else if ZNE(NBPL,Z)=4 then GO_5550
-if ZNE(NBPL,Z)<30 then GO_5460 else if ZNE2(NBPL,ZNE(NBPL,Z)-30)<>4 then GO_5460
-@GO_5550
-gosub GO_7360
-if J=0 then GO_5770
-if J<>1 and J<>9 then if J<>5 then GO_5630
+Z=zone(1)
+if Z=0 then SAM_LADDER_END : rem test from game codebase
+if ZNE(NBPL,Z)=4 then SAM_LD0
+if ZNE(NBPL,Z)<30 then SAM_LADDER_END else if ZNE2(NBPL,ZNE(NBPL,Z)-30)<>4 then SAM_LADDER_END
+@SAM_LD0
+gosub GAME_GET_JOY
+if J=0 then SAM_LD4
+if J<>1 and J<>9 then if J<>5 then SAM_LD1
 if HHH<>1 then HHH=1
 if point(X+E-1,Y-16)>V or point(X-E+1,Y-16)>V then if DEMO=0 then HHH=-1
-if J=9 and X<=315 then GO_5790
-if J=5 and X>=4 then GO_5840
-goto GO_5720
-@GO_5630
-if J<>2 and J<>6 then if J<>10 then GO_5690
+if J=9 and X<=315 then SAM_LD5
+if J=5 and X>=4 then SAM_LD6
+goto SAM_LD3
+@SAM_LD1
+if J<>2 and J<>6 then if J<>10 then SAM_LD2
 if HHH<>0 then HHH=0
 if point(X+E-1,Y+1)>V or point(X-E+1,Y+1)>V then HHH=-1
-if J=10 and X<=315 then GO_5790
-if J=6 and X>=4 then GO_5840
-goto GO_5720
-@GO_5690
-HHH=-1 : if J=8 and X<=315 then GO_5790
-if J=4 and X>=4 then GO_5840
-goto GO_5520
-
-@GO_5720
+if J=10 and X<=315 then SAM_LD5
+if J=6 and X>=4 then SAM_LD6
+goto SAM_LD3
+@SAM_LD2
+HHH=-1 : if J=8 and X<=315 then SAM_LD5
+if J=4 and X>=4 then SAM_LD6
+goto SAM_LADDER
+@SAM_LD3
 read C : if C=0 then restore SAM_LADDER_SPRITES : read C
 if C=53 then if MUS=0 and FX=1 then volume 16 : envel 1,1000 : noise Y/6+1 : FX2=4
 if HHH=1 and C=54 then Y=Y-2
 if HHH=0 then if C=53 or C=55 then Y=Y+2
 if Y<16 then Y=16
-@GO_5770
-gosub GAME_MAIN_SUB : goto GO_5520
-@SAM_LADDER_SPRITES
-data 54,55,54,53,0
-
-@GO_5790
-if point(X+E,Y-15)>V then GO_5720
-if point(X+E,Y-12)>V then GO_5720
+@SAM_LD4
+gosub GAME_MAIN_SUB : goto SAM_LADDER
+@SAM_LD5
+if point(X+E,Y-15)>V then SAM_LD3
+if point(X+E,Y-12)>V then SAM_LD3
 if point(X+E,Y-6)>V then SAM_CLIMB_R
-if point(X+E,Y)>V then GO_5720
-inc X : goto GO_5720
-@GO_5840
-if point(X-E,Y-15)>V then GO_5720
-if point(X-E,Y-12)>V then GO_5720
+if point(X+E,Y)>V then SAM_LD3
+inc X : goto SAM_LD3
+@SAM_LD6
+if point(X-E,Y-15)>V then SAM_LD3
+if point(X-E,Y-12)>V then SAM_LD3
 if point(X-E,Y-6)>V then SAM_CLIMB_L
-if point(X-E,Y)>V then GO_5720
-dec X : goto GO_5720
-
-rem ANIME DEAD : SPLITTED BY A SAW
-@SAM_DEATH_SAW
-for I=13 to 15 : sprite off I : next I
-anim off 1 : while point(X,Y+1)<=V : inc Y : sprite 1,X,Y : if Y=183 then GO_5930
-wend : wait 15
-@GO_5930
-D=19 : if C<=10 then D=2 else if C>=56 and C<=62 then D=2 else if C=90 then D=2
-sprite 1,X,Y,D : wait 3 : if D=2 then sprite 1,X,Y,21 else sprite 1,X,Y,20
-wait 15 : anim 1,"(48,30)(49,10)(50,10)(51,10)(52,10)" : anim on
-wait 70 : anim 1,"(51,4)(52,4)l" : anim on
-goto GO_2080
+if point(X-E,Y)>V then SAM_LD3
+dec X : goto SAM_LD3
 
 rem ANIME DEAD : OUT OF SCREEN JUMP
 @SAM_DEATH_CONTACT
@@ -801,12 +616,12 @@ move y 1,"(1,-2,10)(1,0,10)(1,2,10)(1,3,30)(1,4,40)" : if C=42 then move x 1,"(1
 move on 1 : while y sprite(1)<220 : wend : move off 1 : wait 10 : if FX>=1 then music freeze : volume 16 : envel 1,15000 : noise 31
 sprite 1,x sprite(1),210,44 : anim 1,"(45,30)(46,30)(47,30)"
 move y 1,"(2,-1,0)" : move on 1 : anim on : if FX>=1 then wait 50
-goto GO_2080
+goto SAM_DEATH_COMMON
 
 rem ANIME DEAD : ELECTRIC SHOCK
 @SAM_DEATH_ELECTRIC
 if SUPERM>0 then return
-if CR<>0 and Y=Y1Z(NBPL,Z)+15 then if Y2Z(NBPL,Z)-Y1Z(NBPL,Z)<=X2Z(NBPL,Z)-X1Z(NBPL,Z) then GO_3060
+if CR<>0 and Y=Y1Z(NBPL,Z)+15 then if Y2Z(NBPL,Z)-Y1Z(NBPL,Z)<=X2Z(NBPL,Z)-X1Z(NBPL,Z) then GAME_COLLISION_SPRITES
 anim off 1
 anim 1,"(33,1)(34,1)L" : timer=0 : anim on
 if MUS=1 and FX>=1 then music off : volume 16
@@ -814,62 +629,29 @@ if MUS=1 and FX>=1 then music off : volume 16
 if FX>=1 then envel 1,300 : noise 15 : noise 30 : noise 5
 if timer<70 then GO_6110
 anim 1,"(35,1)(36,10)(37,8)(38,8)(39,8)(40,4)(41,8)" : move y 1,"(5,-1,0)" : anim on 1 : move on 1 : timer=0
-goto GO_2080
+goto SAM_DEATH_COMMON
 
-rem COLLISION TESTS
-@GO_6160
-if point(X-E,Y)>V then GO_3060
-if CR=0 then if point(X-E,Y-9)>V then GO_3060
-dec X
-if point(X,Y+1)<=V then X=(X/8)*8+4
-goto GO_3060
-@GO_6210
-if point(X+E,Y)>V then GO_3060
-if CR=0 then if point(X+E,Y-9)>V then GO_3060
-inc X
-if point(X,Y+1)<=V then X=(X/8)*8+3
-goto GO_3060
 @GO_6260
-if point(X-E,Y)>V then GO_3060
-if CR=0 then if point(X-E,Y-9)>V then GO_3060
+if point(X-E,Y)>V then GAME_COLLISION_SPRITES
+if CR=0 then if point(X-E,Y-9)>V then GAME_COLLISION_SPRITES
 if YES=0 then dec X : YES=1
-YES=0 : goto GO_3060
+YES=0 : goto GAME_COLLISION_SPRITES
+
 if point(X,Y+1)<=V then if joy<>8 then X=(X/8)*8+4 else inc X
-goto GO_3060
+goto GAME_COLLISION_SPRITES
+
 @GO_6320
-if point(X+E,Y)>V then GO_3060
-if CR=0 then if point(X+E,Y-9)>V then GO_3060
+if point(X+E,Y)>V then GAME_COLLISION_SPRITES
+if CR=0 then if point(X+E,Y-9)>V then GAME_COLLISION_SPRITES
 if YES=0 then inc X : YES=1
-YES=0 : goto GO_3060
+YES=0 : goto GAME_COLLISION_SPRITES
+
 if point(X,Y+1)<=V then if joy<>4 then X=3+(X/8)*8 else dec X
-goto GO_3060
-rem SUB_LEVEL_ARRAYS
-@SUB_LEVEL_ARRAYS
-BANK=0 : FIRSTLVLSCR=4 : BANKSIZE=32768 : I=0 : RESERV=int(BANKSIZE*1.5)
-while free>RESERV and FIRSTLVLSCR+I<10
-reserve as screen FIRSTLVLSCR+I : inc I
-wend : if I=1 then I=2
-BANKCOUNT=I-1 : dim LVLBANK(BANKCOUNT)
-dim MP(BANKCOUNT,1,40,22),MOUSKY(BANKCOUNT),SP(BANKCOUNT,8),XM(BANKCOUNT,8),YM(BANKCOUNT,8)
-dim SBLK(BANKCOUNT,7,2),RTRP$(BANKCOUNT,8),XD(BANKCOUNT),YD(BANKCOUNT),NTS(BANKCOUNT),NTZ(BANKCOUNT),CZI(BANKCOUNT)
-dim AN$(BANKCOUNT,8,10),MOV$(BANKCOUNT,8,10),SS(BANKCOUNT,8),FLP(BANKCOUNT,8),ST(BANKCOUNT,9),AL(BANKCOUNT,8),AL2(BANKCOUNT,8)
-dim ZNE(BANKCOUNT,110),X1Z(BANKCOUNT,110),X2Z(BANKCOUNT,110),Y1Z(BANKCOUNT,110),Y2Z(BANKCOUNT,110)
-dim DGEM$(BANKCOUNT,8,3),ACT$(BANKCOUNT,80),NZID(BANKCOUNT,10),NZIO(BANKCOUNT,10),NZIF(BANKCOUNT,10),CTIM(BANKCOUNT,10)
-dim LIN$(BANKCOUNT),ZNE2(BANKCOUNT,80)
-return
-rem SUB_SCROLLS_DEF
-@SUB_SCROLLS_DEF
-def scroll 1,0,0 to 320,184,8,0
-def scroll 8,0,0 to 320,184,-8,0
-def scroll 3,0,8*PTIT to 320,8*PTIT*2,-8,0
-rem specific game
-def scroll 4,0,160 to 320,168,-4,0
-def scroll 10,0,168 to 320,176,4,0
-def scroll 9,0,168 to 320,176,8,0
-return
-rem SUB_LEVEL_DRAW
-@SUB_LEVEL_DRAW
-cls : gosub SUB_SCROLLS_DEF
+goto GAME_COLLISION_SPRITES
+
+rem LEVEL_DRAW
+@LEVEL_DRAW_LAST
+cls back : cls logic
 auto back off
 for NV=0 to 1
 for Y=0 to 22 : for X=1 to 39 step 2
@@ -884,6 +666,20 @@ next NV : scroll 1 : auto back on
 for I=0 to 1 : screen$(logic,0,0)=LIN$(I) : next I
 screen copy logic to back
 return
+
+@LEVEL_DRAW
+cls back : cls logic
+auto back off
+for NV=0 to 1 : for Y=0 to 22 : for X=1 to 39 step 2
+if MP(NBPL,NV,X,Y)<>0 then screen$(logic,X*8,Y*8)=BLK$(MP(NBPL,NV,X,Y))
+next X : next Y : next NV
+scroll 1 : ink 0 : bar 0,0 to 7,183
+for NV=0 to 1 : for Y=0 to 22 : for X=0 to 40 step 2
+if MP(NBPL,NV,X,Y)<>0 then screen$(logic,X*8,Y*8)=BLK$(MP(NBPL,NV,X,Y))
+next X : next Y : next NV 
+auto back on : screen copy logic to back
+return
+
 rem SUB READ LEVEL FILE
 @GO_6470
 FILE$=SAM$+mid$(str$(LVL(PLR)),2,2)+".SAM" : gosub SUB_LOADLEVEL_ANIME
@@ -947,7 +743,7 @@ goto GO_6800
 close #1 : gosub SUB_FADE_BLACK
 if TRACE=1 then locate 0,23 : centre " " : locate 0,20
 rem PREPARE PLR LEVEL
-gosub SUB_LEVEL_DRAW
+gosub LEVEL_DRAW
 screen copy logic to FIRSTLVLSCR+BANK : cls back : cls logic
 return
 rem WARDERS SHOOT ?
@@ -970,70 +766,10 @@ if SPF=-4 then move x 15-BAL,"(1,-4,40)" else move x 15-BAL,"(1,4,40)"
 move on 15-BAL : if FX>=1 then music on : music freeze : volume 16 : envel 1,5000 : noise 25 : FX2=10 : if MUS=0 then FX2=25 : FX=2
 FLP2=0
 BAL=-1
-goto GO_2970
-rem LASER ON/OFF
-@GO_7050
-if X2Z(NBPL,I)-X1Z(NBPL,I)>=Y2Z(NBPL,I)-Y1Z(NBPL,I) then GO_7070
-ink IK : draw X1Z(NBPL,I)+4,Y1Z(NBPL,I)+3 to X1Z(NBPL,I)+4,Y2Z(NBPL,I)-4 : goto GO_7080
-@GO_7070
-ink IK : draw X1Z(NBPL,I)+3,Y1Z(NBPL,I)+4 to X2Z(NBPL,I)-4,Y1Z(NBPL,I)+4
-@GO_7080
-if IK=1 then reset zone I else set zone I,X1Z(NBPL,I),Y1Z(NBPL,I) to X2Z(NBPL,I),Y2Z(NBPL,I)
-if FX=0 or INIT=1 then return else music on : music freeze : volume 16
-if IK=1 then envel 1,750 : play 95,1 : FX2=15 : return
-envel 4,750 : play 96,1 : FX2=15 : return
-@GO_7120
-REP=val(AC3$) : gosub GO_7350
-TAY=val(AC3$) : gosub GO_7350
-XDEST=val(AC3$) : gosub GO_7350
-YDEST=val(AC3$) : gosub GO_7350
-XPIC=val(AC3$) : gosub GO_7350
-YPIC=val(AC3$) : gosub GO_7350
-XPIC2=val(AC3$) : gosub GO_7350
-YPIC2=val(AC3$) : gosub GO_7350
-if IK=8 then set zone I,X1Z(NBPL,I),Y1Z(NBPL,I) to X2Z(NBPL,I),Y2Z(NBPL,I) : goto GO_7220
-reset zone I : XPIC=XPIC2 : YPIC=YPIC2
-@GO_7220
-if TAY=1 or TAY=3 then SBNK=71 else SBNK=1
-if TAY=3 then TAY=2
-get sprite XPIC,YPIC,SBNK : wait vbl
-if abs(REP)=1 then sprite 9,XDEST,YDEST,SBNK : wait vbl : put sprite 9 : wait vbl : goto GO_7330
-if REP<0 then REP=abs(REP) : goto GO_7300
-if TAY=1 and REP>4 then REP=4 else if TAY=2 then REP=REP/2 : if REP>4 then REP=4
-for I=0 to REP-1 : sprite 9+I,XDEST+I*8*TAY,YDEST,SBNK : next I : wait vbl
-goto GO_7320
-@GO_7300
-if TAY=1 and REP>4 then REP=4 else if TAY=2 then REP=REP/2 : if REP>4 then REP=4
-for I=0 to REP-1 : sprite 9+I,XDEST,YDEST+I*8*TAY,SBNK : next I : wait vbl
-@GO_7320
-for I=0 to REP-1 : put sprite 9+I : next I : wait vbl
-@GO_7330
-for I=0 to REP-1 : sprite off 9+I : next I : wait vbl
-return
-@GO_7350
-FOUY=instr(AC3$,"/") : AC3$=mid$(AC3$,FOUY+1,len(AC3$)-FOUY) : return
-rem JOYSTICK READ / DEMO CONT/END
-rem ### PLAYER INPUTS
-@GO_7360
-if DEMO=0 then J=joy : goto GO_7380
-rem ### DEMO INPUTS
-if timer>800 or joy>=16 or inkey$<>"" then goto GO_10900
-dec DEMTIM : if DEMTIM>0 then GO_7380
-J=JDEM(DEMP) : DEMTIM=TDEM(DEMP) : inc DEMP
-@GO_7380
-if COMPILED then wait COMPDELAY
-if BOUT>0 then gosub GO_7420
-if J<16 then FEU2=0 : FEU=0 : return
-J=J-16 : if FEU2=0 then FEU=1
-return
-rem DRUNK, SHUFFLE INPUTS
-@GO_7420
-dec BOUT : if J>=16 then J=J-16
-if J=2 then J=9 else if J=10 then J=1 else if J=8 then J=5 else if J=9 then J=4 else if J=1 then J=6 else if J=5 then J=2 else if J=4 then J=10 else if J=6 then J=8
-if BOUT=0 then transpose PLR : tempo 100
-return
+goto GAME_ZONE_TEST
+
 rem PUNCH OR ACTION LEFT OR RIGHT
-@GO_7450
+@SAM_PUNCH
 TIM=200 : COUP=0 : if C<=5 then anim 1,"(101,5)(102,12)" else anim 1,"(105,9)(106,12)" : COUP=3
 anim on : FEU2=1 : SP=0 : if DEMO=1 then FEU=0 : FEU2=0
 if timer<100 then wait vbl
@@ -1041,7 +777,7 @@ if timer<100 then wait vbl
 DB=2 : T=collide(1,TX+1,TY) : if T=0 then dec TIM : if TIM>0 then GO_7480 else anim off 1 : goto GO_3200
 @GO_7490
 for I=DB to 15 : if btst(I,T)=-1 then SP=I : I=16
-next I : I=0 : if SP>8 then GO_3060
+next I : I=0 : if SP>8 then GAME_COLLISION_SPRITES
 if ST(NBPL,SP)>=9 then DB=SP+1 : SP=0 : goto GO_7490
 if ST(NBPL,SP)<>0 then GO_7650
 if Y>y sprite(SP)+4 or Y<y sprite(SP)-2 then GO_7650
@@ -1063,7 +799,7 @@ I=PLR : gosub GO_8480 : TIM=0 : anim off 1 : goto GO_3110
 W=ZNE(NBPL,Z)-30
 if ZNE2(NBPL,W)=2 and NKEY>0 then dec NKEY : ZNE2(NBPL,W)=4 : goto GO_7830
 if ZNE2(NBPL,W)=3 and OKEY>0 then dec OKEY : ZNE2(NBPL,W)=5 : goto GO_7830
-if ZNE2(NBPL,W)>1 then GO_3060
+if ZNE2(NBPL,W)>1 then GAME_COLLISION_SPRITES
 if X2Z(NBPL,Z)-X1Z(NBPL,Z)=16 and (X1Z(NBPL,Z)/16)*16<>X1Z(NBPL,Z) then CAL=8
 if X2Z(NBPL,Z)-X1Z(NBPL,Z)=24 then CAL=8
 if C<=10 and X+2>X1Z(NBPL,Z)+CAL then GO_7760
@@ -1078,21 +814,22 @@ screen$(back,X1Z(NBPL,Z)+CAL,Y1Z(NBPL,Z))=BLK$(BR+ZNE2(NBPL,W)) : goto GO_7830
 @GO_7810
 W=ZNE(NBPL,PSTZ)-30 : if PSTZ<>0 then PSTZ3=1
 PSTZ=0 : goto GO_7830
-@GO_7820
+@GAME_EVENT
 if ZNE(NBPL,Z)>=60 and ZNE(NBPL,Z)<=79 then W=ZNE(NBPL,Z)-30 : PSTZ=Z : BR=0
 @GO_7830
 AC3$=ACT$(NBPL,W) : if Z<=0 and PSTZ3=0 then screen$(back,X1Z(NBPL,Z)+CAL,Y1Z(NBPL,Z))=BLK$(BR+ZNE2(NPBL,W))
+
 @GO_7840
-I=val(AC3$) : gosub GO_7350 : if I=0 then GO_7930
-ZBNE=val(AC3$) : gosub GO_7350 : if ZBNE<>0 then GO_7870 else if AL(NBPL,I)=0 and ST(NBPL,I)<9 then AL(NBPL,I)=1 else AL(NBPL,I)=0 : if ST(NBPL,I)<9 then move on I : anim on I
+I=val(AC3$) : gosub SET_FOUY : if I=0 then GO_7930
+ZBNE=val(AC3$) : gosub SET_FOUY : if ZBNE<>0 then GO_7870 else if AL(NBPL,I)=0 and ST(NBPL,I)<9 then AL(NBPL,I)=1 else AL(NBPL,I)=0 : if ST(NBPL,I)<9 then move on I : anim on I
 goto GO_7840
 @GO_7870
-ZBNE2=val(AC3$) : gosub GO_7350
+ZBNE2=val(AC3$) : gosub SET_FOUY
 if ZNE(NBPL,I)=ZBNE then ZNE(NBPL,I)=ZBNE2 else ZNE(NBPL,I)=ZBNE
 if ZNE(NBPL,I)=ZBNE then IK=8 : goto GO_7910
 IK=1
 @GO_7910
-on ZBNE gosub GO_7120,GO_7050,GO_7120,GO_7120
+on ZBNE gosub GAME_MOBILES_UPDATE,GAME_LASER_UPDATE,GAME_MOBILES_UPDATE,GAME_MOBILES_UPDATE
 FX2=10 : goto GO_7840
 @GO_7930
 if INIT=1 then INIT=0 : return
@@ -1101,31 +838,34 @@ FEU2=1 : if BR<=MANETS or ZNE2(NBPL,W)>1 then GO_7980 else ZNE2(NBPL,W)=0
 if MP(NBPL,0,(X1Z(NBPL,Z)+CAL)/8,Y1Z(NBPL,Z)/8)<>0 then screen$(back,X1Z(NBPL,Z)+CAL,Y1Z(NBPL,Z))=BLK$(MP(NBPL,0,X1Z(NBPL,Z)/8,Y1Z(NBPL,Z)/8))
 screen$(back,X1Z(NBPL,Z)+CAL,Y1Z(NBPL,Z))=BLK$(BR)
 @GO_7980
-PSTZ3=0 : CAL=0 : goto GO_3060
-rem SUB GETTING OUT OF A LEVEL
-@GO_8000
-gosub SUB_FADE_BLACK : reset zone : BTIM=0 : for I=2 to NTS(NBPL) : if ST(NBPL,I)>=9 then ST(NBPL,I)=0
+PSTZ3=0 : CAL=0 : goto GAME_COLLISION_SPRITES
+
+rem re-initialise level values
+@GAME_LEVEL_CLEAN
+gosub SUB_FADE_BLACK
+reset zone : BTIM=0 : for I=2 to NTS(NBPL) : if ST(NBPL,I)>=9 then ST(NBPL,I)=0
 next I : cls back : cls logic
 FEU=0 : FEU2=1 : PLAT=0 : BOUT=0 : NKEY=0 : OKEY=0 : PSTZ=0 : FX2=0
 for I=0 to 8 : AL2(NBPL,I)=0 : AL(NBPL,I)=0 : next I : PLAT=0
-for II=50 to 80 : AC3$=ACT$(NBPL,II) : if AC3$="" then GO_8090
-@GO_8050
-I=val(AC3$) : gosub GO_7350 : if I=0 then GO_8090 else ZBNE=val(AC3$) : gosub GO_7350 : if ZBNE=0 then GO_8050 else ZBNE2=val(AC3$) : gosub GO_7350
+for II=50 to 80 : AC3$=ACT$(NBPL,II) : if AC3$="" then GAME_LC1
+@GAME_LC0
+I=val(AC3$) : gosub SET_FOUY : if I=0 then GAME_LC1 else ZBNE=val(AC3$) : gosub SET_FOUY : if ZBNE=0 then GAME_LC0 else ZBNE2=val(AC3$) : gosub SET_FOUY
 ZNE(NBPL,I)=ZBNE2
-IK=1 : if ZBNE<>2 then for J=0 to 7 : gosub GO_7350 : next J
-goto GO_8050
-@GO_8090
+IK=1 : if ZBNE<>2 then for J=0 to 7 : gosub SET_FOUY : next J
+goto GAME_LC0
+@GAME_LC1
 next II : Z=0 : CAL=0
-@GO_8100
+@GAME_LC2
 inc Z : if Z>NTZ(NBPL) then Z=0 : goto GO_8170
-if ZNE(NBPL,Z)<40 or ZNE(NBPL,Z)>59 then GO_8100
-if ZNE2(NBPL,ZNE(NBPL,Z)-30)=4 then ZNE2(NBPL,ZNE(NBPL,Z)-30)=2 : goto GO_8100
-if ZNE2(NBPL,ZNE(NBPL,Z)-30)=5 then ZNE2(NBPL,ZNE(NBPL,Z)-30)=3 : goto GO_8100
-if ZNE2(NBPL,ZNE(NBPL,Z)-30)<>1 then goto GO_8100
+if ZNE(NBPL,Z)<40 or ZNE(NBPL,Z)>59 then GAME_LC2
+if ZNE2(NBPL,ZNE(NBPL,Z)-30)=4 then ZNE2(NBPL,ZNE(NBPL,Z)-30)=2 : goto GAME_LC2
+if ZNE2(NBPL,ZNE(NBPL,Z)-30)=5 then ZNE2(NBPL,ZNE(NBPL,Z)-30)=3 : goto GAME_LC2
+if ZNE2(NBPL,ZNE(NBPL,Z)-30)<>1 then goto GAME_LC2
 ZNE2(NBPL,ZNE(NBPL,Z)-30)=0
-goto GO_8100
+goto GAME_LC2
 @GO_8170
 return
+
 rem OBJECTS CONSEQUENCES
 @GO_8250
 reset zone Z : screen$(back,X1Z(NBPL,Z),Y1Z(NBPL,Z))=BLK$(MP(NBPL,0,X1Z(NBPL,Z)/8,Y1Z(NBPL,Z)/8))
@@ -1133,33 +873,33 @@ if Y<>Y1Z(NBPL,Z)+7 then screen$(logic,X1Z(NBPL,Z),Y1Z(NBPL,Z))=BLK$(MP(NBPL,0,X
 on ZNE(NBPL,Z)-19 goto GO_8350,GO_8330,GO_8280,GO_8290,GO_8390,GO_8310,GO_8370
 rem WINE
 @GO_8280
-BOUT=600/NTS(NBPL) : transpose-20 : tempo 50 : goto GO_3060
+BOUT=600/NTS(NBPL) : transpose-20 : tempo 50 : goto GAME_COLLISION_SPRITES
 rem WREATH
 @GO_8290
 SC(PLR)=SC(PLR)+PTSWREATH : I=PLR : gosub GO_8480 : if FX=1 then music on : music freeze : volume 16 : envel 1,7000 : play 70,3 : play 80,1 : FX2=15 : if MUS=0 then FX2=25 : FX=2
-goto GO_3060
+goto GAME_COLLISION_SPRITES
 rem COIN
 @GO_8310
 SC(PLR)=SC(PLR)+PTSCOIN : I=PLR : gosub GO_8480 : if FX>=1 then music on : music freeze : volume 16 : envel 1,5000 : play 90,1 : FX2=10 : if MUS=0 then FX2=25 : FX=2
-goto GO_3060
+goto GAME_COLLISION_SPRITES
 rem KEY 2
 @GO_8330
 inc OKEY : if FX>=1 then music on : music freeze : volume 16 : envel 1,10000 : play 90,1 : FX2=10 : if MUS=0 then FX2=25 : FX=2
-goto GO_3060
+goto GAME_COLLISION_SPRITES
 rem KEY 1
 @GO_8350
 inc NKEY : if FX>=1 then music on : music freeze : volume 16 : envel 1,10000 : play 85,1 : FX2=10 : FX=2
-goto GO_3060
+goto GAME_COLLISION_SPRITES
 rem INVICIBLE
 @GO_8370
 SUPERM=300 : transpose 5+PLR : if FX>=1 then music on : music freeze : volume 16 : envel 1,5000 : play 40,1 : play 41,1 : play 42,1 : play 43,1 : play 44,1 : play 45,1 : play 46,1 : play 47,1 : play 48,1 : play 49,1 : play 50,1 : play 51,1 : FX2=10
-goto GO_3060
+goto GAME_COLLISION_SPRITES
 rem EXTRA LIFE
 @GO_8390
 inc MPBL(PLR) : if FX>=1 then music on : music freeze : volume 16 : envel 1,5000 : play 35,3 : play 55,5 : play 50,1 : FX2=10 : if MUS=0 then FX2=20 : FX=2
 screen copy back,X1Z(NBPL,Z),Y1Z(NBPL,Z)-8,X1Z(NBPL,Z)+16,Y1Z(NBPL,Z) to back,X1Z(NBPL,Z),Y1Z(NBPL,Z)
 screen copy back,X1Z(NBPL,Z),Y1Z(NBPL,Z)-8,X1Z(NBPL,Z)+16,Y1Z(NBPL,Z) to logic,X1Z(NBPL,Z),Y1Z(NBPL,Z)
-gosub GO_8520 : goto GO_3060
+gosub GO_8520 : goto GAME_COLLISION_SPRITES
 rem SCORE DISPLAY INIT
 @GO_8440
 THISPLR=PLR
@@ -1471,11 +1211,13 @@ rem DEMO RUN TEST
 if NWLVL=1 and timer>750 then DEMO=1 : NBP=1 : PLR=0 : DEMP=0
 if TRACE=1 then locate 1,1 : print timer
 return
+
 rem LEAVING DEMO
-@GO_10900
+@GAME_DEMO_END
 gosub SUB_WAIT_KEY_FIRE_RELEASE_DELAY
-pop : gosub GO_8000
+pop : gosub GAME_LEVEL_CLEAN
 DEMO=0 : MDEMTIM=0 : DEMP=0 : DEMTIM=0 : goto GO_1260
+
 rem INIT HELP PANEL 2 TEXT FX
 @GO_11000
 for X=0 to 39 : for Y=0 to 18 : SCXY(X,Y)=0 : next Y : next X
@@ -1522,6 +1264,7 @@ for I=0 to BANKCOUNT
 if LVLBANK(I)=LVL(PLR) then BANK=I : I=BANKCOUNT
 next I
 return
+
 rem search an available bank
 @GO_11400
 BANK=-1
@@ -1602,4 +1345,33 @@ HLP$(16)="THERE IS OTHER OBJECTS,LIKE BOTTLES"
 HLP$(17)="OF WINE,OR EXTRA LIFES THAT YOU'LL"
 HLP$(18)="SOON MEET.OPEN YOUR EYES..."
 HLP$(19)=" "
+return
+
+rem LEVEL COMPLETED
+@GAME_LEVEL_COMPLETE
+pop : music on : anim off : move off : anim 1,"(127,4)(128,5)l"
+anim on : gosub SUB_WAIT_KEY_FIRE_DELAY
+anim off : sprite 1,X,Y,21 : wait 2 : gosub GAME_LEVEL_CLEAN : inc LVL(PLR) : O=LVL(PLR)
+gosub GO_9650 : if LVL(PLR)<=LVLMX then gosub GO_11100
+while BONUSDONE=0 : gosub GO_9740 : wend
+gosub SUB_WAIT_KEY_FIRE_DELAY
+gosub SUB_FADE_BLACK
+if LVL(PLR)>LVLMX then GO_9870
+goto SUB_PANEL_INTERLEVEL
+
+rem define the max number of memory bank
+rem we can set on this machine
+@SUB_GET_BANKCOUNT
+BANK=0 : FIRSTLVLSCR=4 : BANKSIZE=32768 : I=0 : RESERV=int(BANKSIZE*1.5)
+while free>RESERV and FIRSTLVLSCR+I<10
+reserve as screen FIRSTLVLSCR+I : inc I
+wend : if I=1 then I=2
+BANKCOUNT=I-1
+return
+
+rem specific game
+@SUB_SCROLLS_GAME
+def scroll 4,0,160 to 320,168,-4,0
+def scroll 10,0,168 to 320,176,4,0
+def scroll 9,0,168 to 320,176,8,0
 return

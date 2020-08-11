@@ -73,13 +73,18 @@ FLOPPIES = {
 		'TEMPLATES' : {
 			"SAMNAS01.ASC" : [
 				"licence.asc.tpl",
+				"vars.asc.tpl",
 				"game.asc.tpl",
+				"gameplay.asc.tpl",
 				"common.asc.tpl",
 				],
-			# "SAMNLE01.ASC" : [
-				# "licence.asc.tpl",
-				# "SAMNLE01/subs.asc.tpl",
-				# ],
+			"SAMNLE01.ASC" : [
+				"licence.asc.tpl",
+				"vars.asc.tpl",
+				"editor.asc.tpl",
+				"gameplay.asc.tpl",
+				"common.asc.tpl",
+				],
 			},
 		},
 	# 'tpl_all' : {
